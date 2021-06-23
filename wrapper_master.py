@@ -8,10 +8,10 @@ Created on Thu Jun 10 01:40:38 2021
 import os
 import numpy as np
 import datetime as dt
-import sys
-import math
-from sympy import *
-from scipy.optimize import fsolve
+#import sys
+#import math
+#from sympy import *
+#from scipy.optimize import fsolve
 #import subprocess
 #import glob
 
@@ -19,7 +19,7 @@ import wrapper_loop
 import data_handling
 
 #-----------------------------------------------------------------------------------------
-# This script controls the simulations that are executed by the wrapperBGLNCS.py script. 
+# This script controls the simulations that are executed by the wrapper_loop.py script. 
 # Here, the simulation parameters are set (masses, angles etc.) and the data is managed
 #-----------------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ import data_handling
 # local or cluster execution:
 cluster_run = False
 # number of runs to make:
-runNum = 1
+runNum = 3
 # number of parameter-points to generate per run:
 maxRunNum = 50
 # IMPORTANT: the total number of parameter-points will be runNum*maxRunNUm
@@ -113,14 +113,14 @@ Running_Env = os.path.join(os.path.dirname(Working_Folder), 'Running_Env')
 # Stores the interesting outputs:
 Result_data = os.path.join(os.path.dirname(Working_Folder), 'Result_data')
 
-#create the working folders if they don't exist
+# create the working folders if they don't exist
 if not os.path.exists(Running_Env):
     os.makedirs(Running_Env)
 
 if not os.path.exists(Result_data):
     os.makedirs(Result_data)   
     
-#creates a folder where the LesHouches.in.BGL for SPheno will be saved
+# creates a folder where the LesHouches.in.BGL for SPheno will be saved
 if not os.path.exists(Running_Env + '/spheno'):
     os.makedirs(Running_Env + '/spheno')
 
