@@ -5,15 +5,8 @@ Created on Wed Jun  9 23:43:27 2021
 @author: Michal
 """
 
-import os
 import numpy as np
-import datetime as dt
-import sys
-import math
-from sympy import *
-from scipy.optimize import fsolve
-#import subprocess
-#import glob
+import sympy as sp
 
 
 # ##  Definitions of symbolic variables
@@ -29,57 +22,72 @@ class InversionProcedure():
         #-------------------------------------------------------------------------------
         # Definition of Symbolic parameters of the scalar sector:
         # Params. to be solved for in tadpole eqs.:
-        Mu1, Mu2, MuDash = symbols('Mu1, Mu2, MuDash')
+        Mu1, Mu2, MuDash = sp.symbols('Mu1, Mu2, MuDash')
         # Lambdas coupling only to Higgs doublets:
-        Lambda1, Lambda2, Lambda3, Lambda4 = symbols('Lambda1, Lambda2, Lambda3, Lambda4')
+        Lambda1, Lambda2, Lambda3, Lambda4 = sp.symbols('Lambda1, Lambda2, Lambda3, Lambda4')
         # Lambdas coupling also to S:
-        Lambda1Dash, Lambda2Dash, Lambda3Dash = symbols('Lambda1Dash, Lambda2Dash, Lambda3Dash')
+        Lambda1Dash, Lambda2Dash, Lambda3Dash = sp.symbols('Lambda1Dash, Lambda2Dash, Lambda3Dash')
         # Global symmetry breaking params.:
-        Aa1, Aa2, Aa3, Aa4, Mu3, Mub = symbols('Aa1, Aa2, Aa3, Aa4, Mu3, Mub')
+        Aa1, Aa2, Aa3, Aa4, Mu3, Mub = sp.symbols('Aa1, Aa2, Aa3, Aa4, Mu3, Mub')
         # Vev:s:
-        v_1, v_2, v_3, v = symbols('v_1, v_2, v_3, v')
+        v_1, v_2, v_3, v = sp.symbols('v_1, v_2, v_3, v')
         # Mixing angles:
-        beta, a1, a2, a3, gamma1 = symbols('beta, a1, a2, a3, gamma1')
+        beta, a1, a2, a3, gamma1 = sp.symbols('beta, a1, a2, a3, gamma1')
         # Masses:
-        mh, mH, mS, mA1, mA2, mHp = symbols('mh, mH, mS, mA1, mA2, mHp')
+        mh, mH, mS, mA1, mA2, mHp = sp.symbols('mh, mH, mS, mA1, mA2, mHp')
         #-------------------------------------------------------------------------------
         # Equations obtained through the inversion procedure: mass texture parameters obtained as functions of masses and
         # mixing angles:
-        #A_gamma1 = - 0.5*asin(v*Aa1*sqrt(2)/(mA1**2 - mA2**2))
-        A_Aa1 = sqrt(2)*cos(gamma1)*sin(gamma1)*(mA2**2 - mA1**2)/v
-        A_Mub = - 0.5*(mA2**2*cos(gamma1)**2 + mA1**2*sin(gamma1)**2 + Aa1*v_1*v_2/(sqrt(2)*v_3))
-        #A_Mu3 = (- mA1**2*v_1*v_2*cos(2*gamma1) + mA2**2*v_1*v_2*cos(2*gamma1) - sqrt(2)*Aa1*v**2*v_3 - \
-        #         mA1**2*v_1*v_2 - mA2**2*v_1*v_2)/(2*v**2)
-        A_Mu3 = - Aa1*v_3/sqrt(2) - v_1*v_2*(mA1**2*cos(gamma1)**2 + mA2**2*sin(gamma1)**2)/(v**2)
-        A_Lambda1 = (v_2*v**2*(sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*mh**2*v_1*cos(a2)**2*(v_1*cos(a3) - v_2*sin(a3))**2 - 4*(mH**2 -             mS**2)*v_1*cos(a1)*sin(a1)*sin(a2)*(v_1*v_2*cos(2*a3) + (v_1**2 - v_2**2)*cos(a3)*sin(a3)) +              2*v_1*sin(a1)**2*(cos(a3)**2*(mS**2*v_2**2 + mH**2*v_1**2*sin(a2)**2) + sin(a3)**2*(mS**2*v_1**2 +              mH**2*v_2**2*sin(a2)**2) + v_1*v_2*sin(2*a3)*(mS**2 - mH**2*sin(a2)**2)) +              2*v_1*cos(a1)**2*(cos(a3)**2*(mH**2*v_2**2 + mS**2*v_1**2*sin(a2)**2) + sin(a3)**2*(mH**2*v_1**2 +              mS**2*v_2**2*sin(a2)**2) + v_1*v_2*sin(2*a3)*(mH**2 - mS**2*sin(a2)**2)))/(4*v_1**3*v**2)
-        A_Lambda2 = (2*v_1**2*(sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*v_2**2*(sqrt(2)*Aa1*v_3 + 2*Mu3) + v_1*v_2*(2*mh**2 + 3*(mH**2 + mS**2) -             8*v_1**2*Lambda1 + 2*(mH**2 - mS**2)*cos(2*a1)*cos(a2)**2 + cos(2*a2)*(2*mh**2 - mH**2 - mS**2)))/(8*v_1*v_2**3)
-        A_Lambda4 = -(sqrt(2)*Aa1*v_3 + 2*Mu3)/(v_1*v_2) - 2*mHp**2/v**2
-        A_Lambda3 = (- 2*(v_1**4*Lambda1 + v_2**4*Lambda2 + v_1**2*v_2**2*Lambda4) + v**2*(cos(a3)**2*(mh**2*cos(a2)**2 +             (mS**2*cos(a1)**2 + mH**2*sin(a1)**2)*sin(a2)**2) + 2*(mS**2 - mH**2)*cos(a1)*cos(a3)*sin(a1)*sin(a2)*sin(a3) +            sin(a3)**2*(mH**2*cos(a1)**2 + mS**2*sin(a1)**2)))/(2*v_1**2*v_2**2)
-        A_Lambda1Dash = (sqrt(2)*Aa1*v_1*v_2 + 2*v_3*(cos(a2)**2*(mS**2*cos(a1)**2 + mH**2*sin(a1)**2) +                 mh**2*sin(a2)**2))/(4*v_3**3)
-        A_Lambda2Dash = - (sqrt(2)*Aa1*v_2*v**2 + (mH**2 - mS**2)*v*cos(a2)*sin(2*a1)*(v_2*cos(a3) + v_1*sin(a3)) + .5*v*(2*mh**2 -                mH**2 - mS**2 + cos(2*a1)*(mH**2 - mS**2))*sin(2*a2)*(v_1*cos(a3) - v_2*sin(a3)))/(2*v**2*v_1*v_3)
-        A_Lambda3Dash = (sqrt(2)*Aa1*(v_2**2 - v_1**2) + 2*v_1*v_2*v_3*Lambda2Dash + 2*v*cos(a2)*((mH**2 -                 mS**2)*cos(a1)*cos(a3)*sin(a1) + (- mh**2 + mS**2*cos(a1)**2 + mH**2*sin(a1)**2)*sin(a2)*sin(a3)))/(2*v_1*v_2*v_3)
+        A_Aa1 = np.sqrt(2)*np.cos(gamma1)*np.sin(gamma1)*(mA2**2 - mA1**2)/v
+        A_Mub = - 0.5*(mA2**2*np.cos(gamma1)**2 + mA1**2*np.sin(gamma1)**2 + Aa1*v_1*v_2/(np.sqrt(2)*v_3))
+        A_Mu3 = - Aa1*v_3/np.sqrt(2) - v_1*v_2*(mA1**2*np.cos(gamma1)**2 + mA2**2*np.sin(gamma1)**2)/(v**2)
+        A_Lambda1 = (v_2*v**2*(np.sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*mh**2*v_1*np.cos(a2)**2*(v_1*np.cos(a3) -\
+                    v_2*np.sin(a3))**2 - 4*(mH**2 - mS**2)*v_1*np.cos(a1)*np.sin(a1)*np.sin(a2)*(v_1*v_2*np.cos(2*a3) +\
+                    (v_1**2 - v_2**2)*np.cos(a3)*np.sin(a3)) + 2*v_1*np.sin(a1)**2*(np.cos(a3)**2*(mS**2*v_2**2 + \
+                    mH**2*v_1**2*np.sin(a2)**2) + np.sin(a3)**2*(mS**2*v_1**2 + mH**2*v_2**2*np.sin(a2)**2) + \
+                    v_1*v_2*np.sin(2*a3)*(mS**2 - mH**2*np.sin(a2)**2)) + 2*v_1*np.cos(a1)**2*(np.cos(a3)**2*(mH**2*v_2**2 + \
+                    mS**2*v_1**2*np.sin(a2)**2) + np.sin(a3)**2*(mH**2*v_1**2 + mS**2*v_2**2*np.sin(a2)**2) + \
+                    v_1*v_2*np.sin(2*a3)*(mH**2 - mS**2*np.sin(a2)**2)))/(4*v_1**3*v**2)
+        A_Lambda2 = (2*v_1**2*(np.sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*v_2**2*(np.sqrt(2)*Aa1*v_3 + 2*Mu3) + \
+                     v_1*v_2*(2*mh**2 + 3*(mH**2 + mS**2) - 8*v_1**2*Lambda1 + 2*(mH**2 - mS**2)*np.cos(2*a1)*np.cos(a2)**2 +\
+                     np.cos(2*a2)*(2*mh**2 - mH**2 - mS**2)))/(8*v_1*v_2**3)
+        A_Lambda4 = -(np.sqrt(2)*Aa1*v_3 + 2*Mu3)/(v_1*v_2) - 2*mHp**2/v**2
+        A_Lambda3 = (- 2*(v_1**4*Lambda1 + v_2**4*Lambda2 + v_1**2*v_2**2*Lambda4) + \
+                     v**2*(np.cos(a3)**2*(mh**2*np.cos(a2)**2 + (mS**2*np.cos(a1)**2 + mH**2*np.sin(a1)**2)*np.sin(a2)**2) + \
+                     2*(mS**2 - mH**2)*np.cos(a1)*np.cos(a3)*np.sin(a1)*np.sin(a2)*np.sin(a3) + \
+                     np.sin(a3)**2*(mH**2*np.cos(a1)**2 + mS**2*np.sin(a1)**2)))/(2*v_1**2*v_2**2)
+        A_Lambda1Dash = (np.sqrt(2)*Aa1*v_1*v_2 + 2*v_3*(np.cos(a2)**2*(mS**2*np.cos(a1)**2 + mH**2*np.sin(a1)**2) + \
+                         mh**2*np.sin(a2)**2))/(4*v_3**3)
+        A_Lambda2Dash = - (np.sqrt(2)*Aa1*v_2*v**2 + (mH**2 - mS**2)*v*np.cos(a2)*np.sin(2*a1)*(v_2*np.cos(a3) + \
+                           v_1*np.sin(a3)) + .5*v*(2*mh**2 - mH**2 - mS**2 + np.cos(2*a1)*(mH**2 - \
+                           mS**2))*np.sin(2*a2)*(v_1*np.cos(a3) - v_2*np.sin(a3)))/(2*v**2*v_1*v_3)
+        A_Lambda3Dash = (np.sqrt(2)*Aa1*(v_2**2 - v_1**2) + 2*v_1*v_2*v_3*Lambda2Dash + 2*v*np.cos(a2)*((mH**2 - \
+                        mS**2)*np.cos(a1)*np.cos(a3)*np.sin(a1) + (- mh**2 + mS**2*np.cos(a1)**2 + \
+                        mH**2*np.sin(a1)**2)*np.sin(a2)*np.sin(a3)))/(2*v_1*v_2*v_3)
         
         # Tadpole equations:
-        A_Mu1 = -(sqrt(2)*(Aa1*v_2*v_3 + Aa2*v_2*v_3) + (Aa3 + Aa4)*v_2*v_3**2 + 2*Lambda1*v_1**3 + (Lambda3 + Lambda4)*v_1*v_2**2 + Lambda2Dash*v_1*v_3**2 + 2*v_2*Mu3)/(2*v_1)
-        A_Mu2 = -(sqrt(2)*(Aa1*v_1*v_3 + Aa2*v_1*v_3) + (Aa3 + Aa4)*v_1*v_3**2 + 2*Lambda2*v_2**3 + (Lambda3 + Lambda4)*v_2*v_1**2 + Lambda3Dash*v_2*v_3**2 + 2*v_1*Mu3)/(2*v_2)
-        A_MuDash = -(sqrt(2)*(Aa1*v_1*v_2 + Aa2*v_1*v_2) + (Aa3 + Aa4)*v_1*v_2*v_3 + Lambda2Dash*v_1**2*v_3 + Lambda3Dash*v_2**2*v_3 + 2*Lambda1Dash*v_3**3 +                        2*Mub*v_3)/(2*v_3)
+        A_Mu1 = -(np.sqrt(2)*(Aa1*v_2*v_3 + Aa2*v_2*v_3) + (Aa3 + Aa4)*v_2*v_3**2 + 2*Lambda1*v_1**3 + \
+                  (Lambda3 + Lambda4)*v_1*v_2**2 + Lambda2Dash*v_1*v_3**2 + 2*v_2*Mu3)/(2*v_1)
+        A_Mu2 = -(np.sqrt(2)*(Aa1*v_1*v_3 + Aa2*v_1*v_3) + (Aa3 + Aa4)*v_1*v_3**2 + 2*Lambda2*v_2**3 + \
+                  (Lambda3 + Lambda4)*v_2*v_1**2 + Lambda3Dash*v_2*v_3**2 + 2*v_1*Mu3)/(2*v_2)
+        A_MuDash = -(np.sqrt(2)*(Aa1*v_1*v_2 + Aa2*v_1*v_2) + (Aa3 + Aa4)*v_1*v_2*v_3 + Lambda2Dash*v_1**2*v_3 + \
+                     Lambda3Dash*v_2**2*v_3 + 2*Lambda1Dash*v_3**3 + 2*Mub*v_3)/(2*v_3)
         
         # Using these expressions for numerical calculations is much faster than the .subs and .evalf methods applied to the symbolic
         # A_{} expressions directly:
-        #fast_gamma1 = lambdify([Aa1, mA1, mA2, v], A_gamma1, "numpy")
-        self.fast_Aa1 = lambdify([gamma1, mA1, mA2, v], A_Aa1, "numpy")
-        self.fast_Mub = lambdify([Aa1, mA1, mA2, v_1, v_2, v_3, gamma1], A_Mub, "numpy")
-        self.fast_Mu3 = lambdify([Aa1, mA1, mA2, v, v_1, v_2, v_3, gamma1], A_Mu3, "numpy")
-        self.fast_Lambda1  = lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3], A_Lambda1, "numpy")
-        self.fast_Lambda2  = lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3, Lambda1], A_Lambda2, "numpy")
-        self.fast_Lambda4  = lambdify([Aa1, mHp, v, v_1, v_2, v_3, Mu3], A_Lambda4, "numpy")
-        self.fast_Lambda3  = lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3, Lambda1, Lambda2, Lambda4], A_Lambda3, "numpy")
-        self.fast_Lambda1Dash  = lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3], A_Lambda1Dash, "numpy")
-        self.fast_Lambda2Dash  = lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, a1, a2, a3], A_Lambda2Dash, "numpy")
-        self.fast_Lambda3Dash  = lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, a1, a2, a3, Lambda2Dash], A_Lambda3Dash, "numpy")
-        self.fast_Mu1  = lambdify([Aa1, Aa2, Aa3, Aa4, v_1, v_2, v_3, Mu3, Lambda1, Lambda3, Lambda4, Lambda2Dash], A_Mu1, "numpy")
-        self.fast_Mu2  = lambdify([Aa1, Aa2, Aa3, Aa4, v_1, v_2, v_3, Mu3, Lambda2, Lambda3, Lambda4, Lambda3Dash], A_Mu2, "numpy")
-        self.fast_MuDash  = lambdify([Aa1, Aa2, Aa3, Aa4, v_1, v_2, v_3, Mub, Lambda1Dash, Lambda2Dash, Lambda3Dash], A_MuDash, "numpy")
+        self.fast_Aa1 = sp.lambdify([gamma1, mA1, mA2, v], A_Aa1, "numpy")
+        self.fast_Mub = sp.lambdify([Aa1, mA1, mA2, v_1, v_2, v_3, gamma1], A_Mub, "numpy")
+        self.fast_Mu3 = sp.lambdify([Aa1, mA1, mA2, v, v_1, v_2, v_3, gamma1], A_Mu3, "numpy")
+        self.fast_Lambda1  = sp.lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3], A_Lambda1, "numpy")
+        self.fast_Lambda2  = sp.lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3, Lambda1], A_Lambda2, "numpy")
+        self.fast_Lambda4  = sp.lambdify([Aa1, mHp, v, v_1, v_2, v_3, Mu3], A_Lambda4, "numpy")
+        self.fast_Lambda3  = sp.lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3, Lambda1, Lambda2, Lambda4], A_Lambda3, "numpy")
+        self.fast_Lambda1Dash  = sp.lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, Mu3, a1, a2, a3], A_Lambda1Dash, "numpy")
+        self.fast_Lambda2Dash  = sp.lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, a1, a2, a3], A_Lambda2Dash, "numpy")
+        self.fast_Lambda3Dash  = sp.lambdify([Aa1, mh, mH, mS, v, v_1, v_2, v_3, a1, a2, a3, Lambda2Dash], A_Lambda3Dash, "numpy")
+        self.fast_Mu1  = sp.lambdify([Aa1, Aa2, Aa3, Aa4, v_1, v_2, v_3, Mu3, Lambda1, Lambda3, Lambda4, Lambda2Dash], A_Mu1, "numpy")
+        self.fast_Mu2  = sp.lambdify([Aa1, Aa2, Aa3, Aa4, v_1, v_2, v_3, Mu3, Lambda2, Lambda3, Lambda4, Lambda3Dash], A_Mu2, "numpy")
+        self.fast_MuDash  = sp.lambdify([Aa1, Aa2, Aa3, Aa4, v_1, v_2, v_3, Mub, Lambda1Dash, Lambda2Dash, Lambda3Dash], A_MuDash, "numpy")
     
     # ## Defining of Functions for the Inversion Procedure:
     def scalar_inversion(self, num_gamma1, Aa1, num_Aa2, num_Aa3, num_Aa4, m_hh1, m_hh2, m_hh3, m_ah, m_pgs, m_chh, num_v, num_v_1, num_v_2,                     num_v_3, num_a1, num_a2, num_a3):
@@ -133,8 +141,8 @@ class InversionProcedure():
         A = np.random.uniform(A_value - A_error_minus_value, A_value + A_error_plus_value)
         rho = np.random.uniform(rho_value - rho_error_minus_value, rho_value + rho_error_plus_value)
         etha = np.random.uniform(etha_value - etha_error_value, etha_value + etha_error_value)
-        limit = 5      # limit for the couplings
-        Y_lim = np.sqrt(4*np.pi) # limit for the Yukawa couplings
+        #limit = 5      # limit for the couplings
+        #Y_lim = np.sqrt(4*np.pi) # limit for the Yukawa couplings
     
     
         # Mass parameters

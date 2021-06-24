@@ -175,8 +175,8 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
         spheno_data = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
         data_spheno = os.path.join(os.getcwd(), 'SPheno.spc.{}'.format(self.sarah_model_version))
         if not os.path.exists(data_spheno):
-            #print("Point crashed!!!")
-            return None
+            raise Exception("No SPheno output!")
+            #return None
         #print(data_spheno)
         with open(data_spheno, 'r') as R:
             index = -1
