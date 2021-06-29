@@ -19,7 +19,9 @@ class FileWriting():
                             num_v_3, Y1d11, Y1d12, Y1d13, Y1d21, Y1d22, Y1d23, Y2d31, Y2d32, Y2d33, Y1u11, Y1u12, Y1u21,
                             Y1u22, Y2u33, Y1e11, Y1e12, Y1e21, Y1e22, Y2e33, Y1n11, Y1n12, Y1n21, Y1n22, Y2n33, 
                             B11, B12, B21, B22, C13, C23, C31, C32, num_v_1, num_v_2, num_Beta):
-        #creation of a function like the write_mg_cards fo the LesHouches file
+        # this function writes the appropiate SLHA input file for SPheno.
+        # select the file depending on model version:
+        if self.sarah_model_version == 'BGLNCS':
              with open(os.path.join(self.Running_Env,'spheno','LesHouches.in.{}'.format(self.sarah_model_version)),'w') as f:
                 f.write("""Block MODSEL      #
  1 0               #  1/0: High/low scale input
@@ -169,6 +171,227 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
 3    0     # Calc 3-Body decays of Fd. V-1
 4    0     # Calc 3-Body decays of Fv
                  """)
+        
+        elif self.sarah_model_version == 'BGLNCS_stripped':
+            with open(os.path.join(self.Running_Env,'spheno','LesHouches.in.{}'.format(self.sarah_model_version)),'w') as f:
+                f.write("""Block MODSEL      #
+ 1 0               #  1/0: High/low scale input
+ 2 1               # Boundary Condition
+ 5 2               # 0 CP conserved, 1 CP violated (only CKM phase), 2 CP generally violated
+ 6 1               # Generation Mixing
+ 12 9.118870E+01   # Renormalization energy scale
+Block SMINPUTS    # Standard Model inputs
+ 2 1.166370E-05    # G_F,Fermi constant
+ 3 1.187000E-01    # alpha_s(MZ) SM MSbar
+ 4 9.118870E+01    # Z-boson pole mass
+ 5 4.180000E+00    # m_b(mb) SM MSbar
+ 6 1.735000E+02    # m_top(pole)
+ 7 1.776690E+00    # m_tau(pole)
+Block MINPAR  # Input parameters
+ 1   {0}    # Lambda1Input
+ 2   {1}    # Lambda2Input
+ 3   {2}    # Lambda3Input
+ 4   {3}    # Lambda4Input
+ 5   {4}    # Lambda1DashInput
+ 6   {5}    # Lambda2DashInput
+ 7   {6}    # Lambda3DashInput
+ 8   {7}    # Mu3Input
+ 9   {8}    # MubInput
+ 10   {9}    # Aa1Input
+ 11   {10}    # v3input
+ 12   {11}    # v1input
+ 13   {12}    # v2input""".format(num_Lambda1, num_Lambda2, num_Lambda3, num_Lambda4, num_Lambda1Dash, num_Lambda2Dash,
+           num_Lambda3Dash, num_Mu3, num_Mub, num_Aa1,
+           num_v_3, num_v_1, num_v_2))
+                f.write("""
+Block Y1DIN # 1st down-quark yukawa texture, real parts
+ 1 1 {0}  #
+ 1 2 {1}  #
+ 1 3 {2}  #
+ 2 1 {3}  #
+ 2 2 {4}  #
+ 2 3 {5}  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 0.0  #""".format(np.real(Y1d11), np.real(Y1d12), np.real(Y1d13), np.real(Y1d21), np.real(Y1d22), np.real(Y1d23)))
+                f.write("""
+Block IMY1DIN # 1st down-quark yukawa texture, imaginary parts
+ 1 1 {0}  #
+ 1 2 {1}  #
+ 1 3 {2}  #
+ 2 1 {3}  #
+ 2 2 {4}  #
+ 2 3 {5}  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 0.0  #""".format(np.imag(Y1d11), np.imag(Y1d12), np.imag(Y1d13), np.imag(Y1d21), np.imag(Y1d22), np.imag(Y1d23)))
+                f.write("""
+Block Y2DIN # 2nd down-quark yukawa texture, real parts
+ 1 1 0  #
+ 1 2 0  #
+ 1 3 0  #
+ 2 1 0  #
+ 2 2 0  #
+ 2 3 0  #
+ 3 1 {0}  #
+ 3 2 {1}  #
+ 3 3 {2}  #""".format(np.real(Y2d31), np.real(Y2d32), np.real(Y2d33)))
+                f.write("""
+Block IMY2DIN # 2nd down-quark yukawa texture, imaginary parts
+ 1 1 0.0  #
+ 1 2 0.0  #
+ 1 3 0.0  #
+ 2 1 0.0  #
+ 2 2 0.0  #
+ 2 3 0.0  #
+ 3 1 {0}  #
+ 3 2 {1}  #
+ 3 3 {2}  #""".format(np.imag(Y2d31), np.imag(Y2d32), np.imag(Y2d33)))
+                f.write("""
+Block Y1UIN # 1st up-quark yukawa texture, real parts
+ 1 1 {0}  #
+ 1 2 {1}  #
+ 1 3 0.0  #
+ 2 1 {2}  #
+ 2 2 {3}  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 0.0  #""".format(np.real(Y1u11), np.real(Y1u12), np.real(Y1u21), np.real(Y1u22)))
+                f.write("""
+Block IMY1UIN # 1st up-quark yukawa texture, imaginary parts
+ 1 1 {0}  #
+ 1 2 {1}  #
+ 1 3 0.0  #
+ 2 1 {2}  #
+ 2 2 {3}  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 0.0  #""".format(np.imag(Y1u11), np.imag(Y1u12), np.imag(Y1u21), np.imag(Y1u22)))
+                f.write("""
+Block Y2UDIN # 2nd up-quark yukawa texture, real parts
+ 1 1 0.0  #
+ 1 2 0.0  #
+ 1 3 0.0  #
+ 2 1 0.0  #
+ 2 2 0.0  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 {0}  #""".format(np.real(Y2u33)))
+                f.write("""
+Block IMY2UIN # 2nd up-quark yukawa texture, imaginary parts
+ 1 1 0.0  #
+ 1 2 0.0  #
+ 1 3 0.0  #
+ 2 1 0.0  #
+ 2 2 0.0  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 {0}  #""".format(np.imag(Y2u33)))
+                f.write("""
+Block Y1EIN # 1st charged-lepton yukawa texture, real parts
+ 1 1 {0}  #
+ 1 2 {1}  #
+ 1 3 0.0  #
+ 2 1 {2}  #
+ 2 2 {3}  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 0.0  #""".format(np.real(Y1e11), np.real(Y1e12), np.real(Y1e21), np.real(Y1e22)))
+                f.write("""
+Block IMY1EIN # 1st charged-lepton yukawa texture, imaginary parts
+ 1 1 {0}  #
+ 1 2 {1}  #
+ 1 3 0.0  #
+ 2 1 {2}  #
+ 2 2 {3}  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 0.0  #""".format(np.imag(Y1e11), np.imag(Y1e12), np.imag(Y1e21), np.imag(Y1e22)))
+                f.write("""
+Block Y2EIN # 2nd charged-lepton yukawa texture, real parts
+ 1 1 0.0  #
+ 1 2 0.0  #
+ 1 3 0.0  #
+ 2 1 0.0  #
+ 2 2 0.0  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 {0}  #""".format(np.real(Y2e33)))
+                f.write("""
+Block IMY2EIN # 2nd charged-lepton yukawa texture, imaginary parts
+ 1 1 0.0  #
+ 1 2 0.0  #
+ 1 3 0.0  #
+ 2 1 0.0  #
+ 2 2 0.0  #
+ 2 3 0.0  #
+ 3 1 0.0  #
+ 3 2 0.0  #
+ 3 3 {0}  #""".format(np.imag(Y2e33)))
+                f.write("""
+Block SPhenoInput   # SPheno specific input 
+  1 -1              # error level 
+  2  0              # SPA conventions 
+  7  1              # Skip 2-loop Higgs corrections 
+  8  3              # Method used for two-loop calculation 
+  9  1              # Gaugeless limit used at two-loop 
+ 10  1              # safe-mode used at two-loop # vasielios has 1
+ 11 1               # calculate branching ratios 
+ 13 0               # 3-Body decays: none (0), fermion (1), scalar (2), both (3) 
+ 14 0               # Run couplings to scale of decaying particle 
+ 12 1.000E-30       # write only branching ratios larger than this value 
+ 15 1.000E-30       # write only decay if width larger than this value
+ 16 0               # One-loop decays
+ 19 -2               # Matching order (-2:automatic, -1:pole, 0-2: tree, one- & two-loop) Vasileios has -2
+ 31 -1              # fixed GUT scale (-1: dynamical GUT scale) (causes problems - set to 1)
+ 32 0               # Strict unification 
+ 34 1.000E-04       # Precision of mass calculation 
+ 35 40              # Maximal number of iterations
+ 36 5               # Minimal number of iterations before discarding points
+ 37 1               # Set Yukawa scheme  
+ 38 1               # 1- or 2-Loop RGEs 
+ 50 0               # Majorana phases: use only positive masses (put 0 to use file with CalcHep/Micromegas!) Vasileios 0
+ 51 0               # Write Output in CKM basis 
+ 52 0               # Write spectrum in case of tachyonic states Vasileios 0
+ 55 0               # Calculate loop corrected masses 
+ 57 1               # Calculate low energy constraints 
+ 65 1               # Solution tadpole equation 
+ 66 1               # Two-Scale Matching, Vasileios 1
+ 67 0               # effective Higgs mass calculation Vasileios 0
+ 75 0               # Write WHIZARD files 
+ 76 2               # Write HiggsBounds file: 2 for HiggsBounds5, 1 for HiggsBounds4 and below   
+ 77 0               # Output for MicrOmegas (running masses for light quarks; real mixing matrices)   
+ 78 0               # Output for MadGraph (writes also vanishing blocks)   
+ 79 1               # Write WCXF files (exchange format for Wilson coefficients), Vasileios 1 
+ 86 0.              # Maximal width to be counted as invisible in Higgs decays; -1: only LSP 
+ 440 1               # Tree-level unitarity constraints (limit s->infinity) 
+ 441 1               # Full tree-level unitarity constraints 
+ 442 1000.           # sqrt(s_min)   
+ 443 2000.           # sqrt(s_max)   
+ 444 5               # steps   
+ 445 0               # running   
+ 510 1.              # Write tree level values for tadpole solutions 
+ 515 0               # Write parameter values at GUT scale 
+ 520 1.              # Write effective Higgs couplings (HiggsBounds blocks): put 0 to use file with MadGraph! 
+ 521 0.              # Diphoton/Digluon widths including higher order, vasileio 0
+ 525 0.              # Write loop contributions to diphoton decay of Higgs 
+ 530 0.              # Write Blocks for Vevacious 
+Block DECAYOPTIONS   # Options to turn on/off specific decays
+1    0     # Calc 3-Body decays of Fu. V-1. I have turned them off/on to make it work for HiggsBounds (only NDA=2 allowed)
+2    0     # Calc 3-Body decays of Fe. V-1
+3    0     # Calc 3-Body decays of Fd. V-1
+4    0     # Calc 3-Body decays of Fv
+                 """)
+                 
+        else:
+            raise Exception("Unsupported model version!")
         
     def saveParamsForComparison(self, m_hh1, m_hh2, m_hh3, m_chh, m_ah, m_pgs, vlu, vru, vld, vrd, vll, vrl, Oscalars, OpseudoS, Ocharged,
                            t, s, u):
