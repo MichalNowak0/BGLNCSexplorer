@@ -38,32 +38,32 @@ class InversionProcedure():
         #-------------------------------------------------------------------------------
         # Equations obtained through the inversion procedure: mass texture parameters obtained as functions of masses and
         # mixing angles:
-        A_Aa1 = np.sqrt(2)*np.cos(gamma1)*np.sin(gamma1)*(mA2**2 - mA1**2)/v
-        A_Mub = - 0.5*(mA2**2*np.cos(gamma1)**2 + mA1**2*np.sin(gamma1)**2 + Aa1*v_1*v_2/(np.sqrt(2)*v_3))
-        A_Mu3 = - Aa1*v_3/np.sqrt(2) - v_1*v_2*(mA1**2*np.cos(gamma1)**2 + mA2**2*np.sin(gamma1)**2)/(v**2)
-        A_Lambda1 = (v_2*v**2*(np.sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*mh**2*v_1*np.cos(a2)**2*(v_1*np.cos(a3) -\
-                    v_2*np.sin(a3))**2 - 4*(mH**2 - mS**2)*v_1*np.cos(a1)*np.sin(a1)*np.sin(a2)*(v_1*v_2*np.cos(2*a3) +\
-                    (v_1**2 - v_2**2)*np.cos(a3)*np.sin(a3)) + 2*v_1*np.sin(a1)**2*(np.cos(a3)**2*(mS**2*v_2**2 + \
-                    mH**2*v_1**2*np.sin(a2)**2) + np.sin(a3)**2*(mS**2*v_1**2 + mH**2*v_2**2*np.sin(a2)**2) + \
-                    v_1*v_2*np.sin(2*a3)*(mS**2 - mH**2*np.sin(a2)**2)) + 2*v_1*np.cos(a1)**2*(np.cos(a3)**2*(mH**2*v_2**2 + \
-                    mS**2*v_1**2*np.sin(a2)**2) + np.sin(a3)**2*(mH**2*v_1**2 + mS**2*v_2**2*np.sin(a2)**2) + \
-                    v_1*v_2*np.sin(2*a3)*(mH**2 - mS**2*np.sin(a2)**2)))/(4*v_1**3*v**2)
-        A_Lambda2 = (2*v_1**2*(np.sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*v_2**2*(np.sqrt(2)*Aa1*v_3 + 2*Mu3) + \
-                     v_1*v_2*(2*mh**2 + 3*(mH**2 + mS**2) - 8*v_1**2*Lambda1 + 2*(mH**2 - mS**2)*np.cos(2*a1)*np.cos(a2)**2 +\
-                     np.cos(2*a2)*(2*mh**2 - mH**2 - mS**2)))/(8*v_1*v_2**3)
-        A_Lambda4 = -(np.sqrt(2)*Aa1*v_3 + 2*Mu3)/(v_1*v_2) - 2*mHp**2/v**2
+        A_Aa1 = sp.sqrt(2)*sp.cos(gamma1)*sp.sin(gamma1)*(mA2**2 - mA1**2)/v
+        A_Mub = - 0.5*(mA2**2*sp.cos(gamma1)**2 + mA1**2*sp.sin(gamma1)**2 + Aa1*v_1*v_2/(sp.sqrt(2)*v_3))
+        A_Mu3 = - Aa1*v_3/sp.sqrt(2) - v_1*v_2*(mA1**2*sp.cos(gamma1)**2 + mA2**2*sp.sin(gamma1)**2)/(v**2)
+        A_Lambda1 = (v_2*v**2*(sp.sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*mh**2*v_1*sp.cos(a2)**2*(v_1*sp.cos(a3) -\
+                    v_2*sp.sin(a3))**2 - 4*(mH**2 - mS**2)*v_1*sp.cos(a1)*sp.sin(a1)*sp.sin(a2)*(v_1*v_2*sp.cos(2*a3) +\
+                    (v_1**2 - v_2**2)*sp.cos(a3)*sp.sin(a3)) + 2*v_1*sp.sin(a1)**2*(sp.cos(a3)**2*(mS**2*v_2**2 + \
+                    mH**2*v_1**2*sp.sin(a2)**2) + sp.sin(a3)**2*(mS**2*v_1**2 + mH**2*v_2**2*sp.sin(a2)**2) + \
+                    v_1*v_2*sp.sin(2*a3)*(mS**2 - mH**2*sp.sin(a2)**2)) + 2*v_1*sp.cos(a1)**2*(sp.cos(a3)**2*(mH**2*v_2**2 + \
+                    mS**2*v_1**2*sp.sin(a2)**2) + sp.sin(a3)**2*(mH**2*v_1**2 + mS**2*v_2**2*sp.sin(a2)**2) + \
+                    v_1*v_2*sp.sin(2*a3)*(mH**2 - mS**2*sp.sin(a2)**2)))/(4*v_1**3*v**2)
+        A_Lambda2 = (2*v_1**2*(sp.sqrt(2)*Aa1*v_3 + 2*Mu3) + 2*v_2**2*(sp.sqrt(2)*Aa1*v_3 + 2*Mu3) + \
+                     v_1*v_2*(2*mh**2 + 3*(mH**2 + mS**2) - 8*v_1**2*Lambda1 + 2*(mH**2 - mS**2)*sp.cos(2*a1)*sp.cos(a2)**2 +\
+                     sp.cos(2*a2)*(2*mh**2 - mH**2 - mS**2)))/(8*v_1*v_2**3)
+        A_Lambda4 = -(sp.sqrt(2)*Aa1*v_3 + 2*Mu3)/(v_1*v_2) - 2*mHp**2/v**2
         A_Lambda3 = (- 2*(v_1**4*Lambda1 + v_2**4*Lambda2 + v_1**2*v_2**2*Lambda4) + \
-                     v**2*(np.cos(a3)**2*(mh**2*np.cos(a2)**2 + (mS**2*np.cos(a1)**2 + mH**2*np.sin(a1)**2)*np.sin(a2)**2) + \
-                     2*(mS**2 - mH**2)*np.cos(a1)*np.cos(a3)*np.sin(a1)*np.sin(a2)*np.sin(a3) + \
-                     np.sin(a3)**2*(mH**2*np.cos(a1)**2 + mS**2*np.sin(a1)**2)))/(2*v_1**2*v_2**2)
-        A_Lambda1Dash = (np.sqrt(2)*Aa1*v_1*v_2 + 2*v_3*(np.cos(a2)**2*(mS**2*np.cos(a1)**2 + mH**2*np.sin(a1)**2) + \
-                         mh**2*np.sin(a2)**2))/(4*v_3**3)
-        A_Lambda2Dash = - (np.sqrt(2)*Aa1*v_2*v**2 + (mH**2 - mS**2)*v*np.cos(a2)*np.sin(2*a1)*(v_2*np.cos(a3) + \
-                           v_1*np.sin(a3)) + .5*v*(2*mh**2 - mH**2 - mS**2 + np.cos(2*a1)*(mH**2 - \
-                           mS**2))*np.sin(2*a2)*(v_1*np.cos(a3) - v_2*np.sin(a3)))/(2*v**2*v_1*v_3)
-        A_Lambda3Dash = (np.sqrt(2)*Aa1*(v_2**2 - v_1**2) + 2*v_1*v_2*v_3*Lambda2Dash + 2*v*np.cos(a2)*((mH**2 - \
-                        mS**2)*np.cos(a1)*np.cos(a3)*np.sin(a1) + (- mh**2 + mS**2*np.cos(a1)**2 + \
-                        mH**2*np.sin(a1)**2)*np.sin(a2)*np.sin(a3)))/(2*v_1*v_2*v_3)
+                     v**2*(sp.cos(a3)**2*(mh**2*sp.cos(a2)**2 + (mS**2*sp.cos(a1)**2 + mH**2*sp.sin(a1)**2)*sp.sin(a2)**2) + \
+                     2*(mS**2 - mH**2)*sp.cos(a1)*sp.cos(a3)*sp.sin(a1)*sp.sin(a2)*sp.sin(a3) + \
+                     sp.sin(a3)**2*(mH**2*sp.cos(a1)**2 + mS**2*sp.sin(a1)**2)))/(2*v_1**2*v_2**2)
+        A_Lambda1Dash = (sp.sqrt(2)*Aa1*v_1*v_2 + 2*v_3*(sp.cos(a2)**2*(mS**2*sp.cos(a1)**2 + mH**2*sp.sin(a1)**2) + \
+                         mh**2*sp.sin(a2)**2))/(4*v_3**3)
+        A_Lambda2Dash = - (sp.sqrt(2)*Aa1*v_2*v**2 + (mH**2 - mS**2)*v*sp.cos(a2)*sp.sin(2*a1)*(v_2*sp.cos(a3) + \
+                           v_1*sp.sin(a3)) + .5*v*(2*mh**2 - mH**2 - mS**2 + sp.cos(2*a1)*(mH**2 - \
+                           mS**2))*sp.sin(2*a2)*(v_1*sp.cos(a3) - v_2*sp.sin(a3)))/(2*v**2*v_1*v_3)
+        A_Lambda3Dash = (sp.sqrt(2)*Aa1*(v_2**2 - v_1**2) + 2*v_1*v_2*v_3*Lambda2Dash + 2*v*sp.cos(a2)*((mH**2 - \
+                        mS**2)*sp.cos(a1)*sp.cos(a3)*sp.sin(a1) + (- mh**2 + mS**2*sp.cos(a1)**2 + \
+                        mH**2*sp.sin(a1)**2)*sp.sin(a2)*sp.sin(a3)))/(2*v_1*v_2*v_3)
         
         # Tadpole equations:
         A_Mu1 = -(np.sqrt(2)*(Aa1*v_2*v_3 + Aa2*v_2*v_3) + (Aa3 + Aa4)*v_2*v_3**2 + 2*Lambda1*v_1**3 + \
@@ -283,7 +283,7 @@ class InversionProcedure():
         Me = np.array(0.000510999)
         Mmu = np.array(0.10565837)
         Mtau = np.array(1.77686)
-        
+        """
         #-----------------------------------------------------
         # Angles used to diagonalize charged leptons:
         theta_1 = np.random.uniform(0.0,2*np.pi)
@@ -318,18 +318,25 @@ class InversionProcedure():
         
         # Note the complex phase in the (3,3) entry.
         vrl = np.block([[matProd2, np.zeros((2, 1))], [np.zeros((1, 2)), np.exp(1j*phi_7)]])
-        
+        """
         # Diagonal charged lepton mass matrix:
         Dl = np.array([[Me,0,0],
                         [0,Mmu,0],
                         [0,0,Mtau]])
-        
+        """
         # Inversion:
         #MlT = np.transpose(np.matmul(vll, np.matmul(Dl, vrl.conj().T)))
         MlT = np.matmul(vll, np.matmul(Dl, vrl.conj().T))
         #print("Ch. Lep. Mass texture: ", MlT)
         #print("Ch. Lep. left mixing matrix: ", vll)
-        
+        """
+        MlT = Dl
+        vll = np.array([[1, 0, 0],
+                        [0, 1, 0],
+                        [0, 0, 1]])
+        vrl = np.array([[1, 0, 0],
+                        [0, 1, 0],
+                        [0, 0, 1]])
         # Extracting couplings:
         Y1l11 = (np.sqrt(2)/num_v_1)*MlT[0, 0]
         Y1l12 = (np.sqrt(2)/num_v_1)*MlT[0, 1]

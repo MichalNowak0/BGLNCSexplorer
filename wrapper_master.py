@@ -26,7 +26,7 @@ import data_handling
 # These cells set up the metaparameters of the run:
 
 # local or cluster execution:
-cluster_run = False
+cluster_run = True
 # number of runs to make:
 runNum = 3
 # number of parameter-points to generate per run:
@@ -34,7 +34,7 @@ maxRunNum = 50
 # IMPORTANT: the total number of parameter-points will be runNum*maxRunNUm
 
 # Versions of the diffrent programs:
-sarah_model_version = 'BGLNCS'
+sarah_model_version = 'BGLNCS_stripped'
 spheno_version = '4.0.4'
 higgs_bounds_version = '5.3.2beta'
 higgs_signals_version = '2.2.3beta'

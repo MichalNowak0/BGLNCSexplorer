@@ -357,6 +357,7 @@ Block SPhenoInput   # SPheno specific input
  36 5               # Minimal number of iterations before discarding points
  37 1               # Set Yukawa scheme  
  38 1               # 1- or 2-Loop RGEs 
+ 49 1               # 
  50 0               # Majorana phases: use only positive masses (put 0 to use file with CalcHep/Micromegas!) Vasileios 0
  51 0               # Write Output in CKM basis 
  52 0               # Write spectrum in case of tachyonic states Vasileios 0
@@ -401,6 +402,8 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
             raise Exception("No SPheno output!")
             #return None
         #print(data_spheno)
+        else:
+            return None
         with open(data_spheno, 'r') as R:
             index = -1
             for line in R.readlines():
