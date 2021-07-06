@@ -403,66 +403,74 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
             #return None
         #print(data_spheno)
         else:
-            return None
-        with open(data_spheno, 'r') as R:
-            index = -1
-            for line in R.readlines():
-                if index != -1:
-                    if line.startswith('        23'):
-                        index = -1
-                    elif not line.startswith('Block') and not line.startswith('Decay') and not line.startswith('#   PDG code'):
-                        spheno_data[index].append(line.strip('\n'))
-                if line.startswith('Block MASS'):
-                    index = 0
-                elif line.startswith('Block UDLMIX'):
-                    index = 1
-                elif line.startswith('Block UDRMIX'):
-                    index = 2
-                elif line.startswith('Block UULMIX'):
-                    index = 3
-                elif line.startswith('Block UURMIX'):
-                    index = 4
-                elif line.startswith('Block UELMIX'):
-                    index = 5
-                elif line.startswith('Block UERMIX'):
-                    index = 6
-                elif line.startswith('Block IMUDLMIX'):
-                    index = 7
-                elif line.startswith('Block IMUDRMIX'):
-                    index = 8
-                elif line.startswith('Block IMUULMIX'):
-                    index = 9
-                elif line.startswith('Block IMUURMIX'):
-                    index = 10
-                elif line.startswith('Block IMUELMIX'):
-                    index = 11
-                elif line.startswith('Block IMUERMIX'):
-                    index = 12
-                elif line.startswith('Block ZH_SCALARMIX'):
-                    index = 13
-                elif line.startswith('Block ZA'):
-                    index = 14
-                elif line.startswith('Block ZP'):
-                    index = 15
-        
-        a = []
-        EW_P_O_info = False    
-        with open(data_spheno, 'r') as f:
-            for line in f.readlines():
-                if line.startswith('Block SPhenoLowEnergy'):
-                #Electroweak precision observables
-                    EW_P_O_info = True
-                if line.startswith('Block FlavorKitQFV # quark flavor violating observables'):
-                    EW_P_O_info=False
-                if EW_P_O_info:
-                    a.append(line.strip('\n'))
-        #a = line.strip('\n')
-        T = float(a[1].split()[1] )
-        S = float(a[2].split()[1] )
-        U = float(a[3].split()[1] )
-        
-        #os.chdir(masses_for_comparison)
-        with open('masses','w') as f:
+            list_of_checks = [False for i in range(12)]
+            with open(data_spheno, 'r') as R:
+                index = -1
+                for line in R.readlines():
+                    if index != -1:
+                        if line.startswith('        23'):
+                            index = -1
+                        elif not line.startswith('Block') and not line.startswith('Decay') and not line.startswith('#   PDG code'):
+                            spheno_data[index].append(line.strip('\n'))
+                    if line.startswith('Block MASS'):
+                        index = 0
+                    elif line.startswith('Block UDLMIX'):
+                        index = 1
+                    elif line.startswith('Block UDRMIX'):
+                        index = 2
+                    elif line.startswith('Block UULMIX'):
+                        index = 3
+                    elif line.startswith('Block UURMIX'):
+                        index = 4
+                    elif line.startswith('Block UELMIX'):
+                        index = 5
+                    elif line.startswith('Block UERMIX'):
+                        index = 6
+                    elif line.startswith('Block IMUDLMIX'):
+                        index = 7
+                    elif line.startswith('Block IMUDRMIX'):
+                        index = 8
+                    elif line.startswith('Block IMUULMIX'):
+                        index = 9
+                    elif line.startswith('Block IMUURMIX'):
+                        index = 10
+                    elif line.startswith('Block IMUELMIX'):
+                        index = 11
+                    elif line.startswith('Block IMUERMIX'):
+                        index = 12
+                    elif line.startswith('Block ZH_SCALARMIX'):
+                        index = 13
+                    elif line.startswith('Block ZA'):
+                        index = 14
+                    elif line.startswith('Block ZP'):
+                        index = 15
+                        
+                    if index != -1:
+                        list_of_checks[index - 1] = True
+            
+            for i in range(12):
+                if not list_of_checks[i]:
+                    spheno_data[i + 1] = [0 for i in range(9)]
+                
+            
+            a = []
+            EW_P_O_info = False    
+            with open(data_spheno, 'r') as f:
+                for line in f.readlines():
+                    if line.startswith('Block SPhenoLowEnergy'):
+                    #Electroweak precision observables
+                        EW_P_O_info = True
+                    if line.startswith('Block FlavorKitQFV # quark flavor violating observables'):
+                        EW_P_O_info=False
+                    if EW_P_O_info:
+                        a.append(line.strip('\n'))
+            #a = line.strip('\n')
+            T = float(a[1].split()[1] )
+            S = float(a[2].split()[1] )
+            U = float(a[3].split()[1] )
+            
+            #os.chdir(masses_for_comparison)
+            with open('masses','w') as f:
                 f.write("""
 #--------------------------------
 # Higgs Masses, Pre-SPheno ---  SPheno [GeV]:
@@ -472,111 +480,116 @@ m_hh2: {1} \t {7}
 m_hh3: {2} \t {8}
 m_ah:  {3} \t {9}
 m_pgs: {4} \t {10}
-m_chh: {5} \t {11}
+m_chh: {5} \t {11}""".format(m_hh1, m_hh2, m_hh3, m_ah, m_pgs, m_chh, spheno_data[0][0], spheno_data[0][1], spheno_data[0][2],
+                           spheno_data[0][3], spheno_data[0][4], spheno_data[0][5]))
+                f.write("""
 #--------------------------------
 # Mixing Angles, DL:
 #--------------------------------
-{12} \t {72}
-{13} \t {73}
-{14} \t {74}
-{15} \t {75}
-{16} \t {76}
-{17} \t {77}
-{18} \t {78}
-{19} \t {79}
-{20} \t {80}
-{66}
+{0} \t {9}
+{1} \t {10}
+{2} \t {11}
+{3} \t {12}
+{4} \t {13}
+{5} \t {14}
+{6} \t {15}
+{7} \t {16}
+{8} \t {17}
+{18}""".format(spheno_data[1][0], spheno_data[1][1],
+                           spheno_data[1][2], spheno_data[1][3],
+                           spheno_data[1][4], spheno_data[1][5], spheno_data[1][6], spheno_data[1][7], spheno_data[1][8],
+                           spheno_data[7][0], spheno_data[7][1], spheno_data[7][2], spheno_data[7][3], spheno_data[7][4],
+                           spheno_data[7][5], spheno_data[7][6], spheno_data[7][7], spheno_data[7][8], vld))
+                f.write("""
 #--------------------------------
 # Mixing Angles, DR:
 #--------------------------------
-{21} \t {81}
-{22} \t {82}
-{23} \t {83}
-{24} \t {84}
-{25} \t {85}
-{26} \t {86}
-{27} \t {87}
-{28} \t {88}
-{29} \t {89}
-{67}
+{0} \t {9}
+{1} \t {10}
+{2} \t {11}
+{3} \t {12}
+{4} \t {13}
+{5} \t {14}
+{6} \t {15}
+{7} \t {16}
+{8} \t {17}
+{18}""".format(spheno_data[2][0], spheno_data[2][1], spheno_data[2][2], spheno_data[2][3], spheno_data[2][4],
+                           spheno_data[2][5], spheno_data[2][6], spheno_data[2][7], spheno_data[2][8], spheno_data[8][0],
+                           spheno_data[8][1], spheno_data[8][2], spheno_data[8][3], spheno_data[8][4], spheno_data[8][5],
+                           spheno_data[8][6], spheno_data[8][7], spheno_data[8][8], vrd))
+                f.write("""
 #--------------------------------
 # Mixing Angles, UL:
 #--------------------------------
-{30} \t {90}
-{31} \t {91}
-{32} \t {92}
-{33} \t {93}
-{34} \t {94}
-{35} \t {95}
-{36} \t {96}
-{37} \t {97}
-{38} \t {98}
-{68}
+{0} \t {9}
+{1} \t {10}
+{2} \t {11}
+{3} \t {12}
+{4} \t {13}
+{5} \t {14}
+{6} \t {15}
+{7} \t {16}
+{8} \t {17}
+{18}""".format(spheno_data[3][0],
+                           spheno_data[3][1], spheno_data[3][2], spheno_data[3][3], spheno_data[3][4], spheno_data[3][5],
+                           spheno_data[3][6], spheno_data[3][7], spheno_data[3][8], spheno_data[9][0], spheno_data[9][1],
+                           spheno_data[9][2], spheno_data[9][3], spheno_data[9][4], spheno_data[9][5], spheno_data[9][6], 
+                           spheno_data[9][7], spheno_data[9][8], vlu))
+                f.write("""
 #--------------------------------
 # Mixing Angles, UR:
 #--------------------------------
-{39} \t {99}
-{40} \t {100}
-{41} \t {101}
-{42} \t {102}
-{43} \t {103}
-{44} \t {104}
-{45} \t {105}
-{46} \t {106}
-{47} \t {107}
-{69}
+{0} \t {9}
+{1} \t {10}
+{2} \t {11}
+{3} \t {12}
+{4} \t {13}
+{5} \t {14}
+{6} \t {15}
+{7} \t {16}
+{8} \t {17}
+{18}""".format(spheno_data[4][0], spheno_data[4][1],
+                           spheno_data[4][2], spheno_data[4][3], spheno_data[4][4], spheno_data[4][5], spheno_data[4][6], 
+                           spheno_data[4][7], spheno_data[4][8], spheno_data[10][0], spheno_data[10][1], spheno_data[10][2], 
+                           spheno_data[10][3], spheno_data[10][4], spheno_data[10][5], spheno_data[10][6], spheno_data[10][7], 
+                           spheno_data[10][8], vru))
+                f.write("""
 #--------------------------------
 # Mixing Angles, LL:
 #--------------------------------
-{48} \t {108}
-{49} \t {109}
-{50} \t {110}
-{51} \t {111}
-{52} \t {112}
-{53} \t {113}
-{54} \t {114}
-{55} \t {115}
-{56} \t {116}
-{70}
+{0} \t {9}
+{1} \t {10}
+{2} \t {11}
+{3} \t {12}
+{4} \t {13}
+{5} \t {14}
+{6} \t {15}
+{7} \t {16}
+{8} \t {17}
+{18}""".format(spheno_data[5][0], spheno_data[5][1], spheno_data[5][2], 
+                           spheno_data[5][3], spheno_data[5][4], spheno_data[5][5], spheno_data[5][6], spheno_data[5][7], 
+                           spheno_data[5][8], spheno_data[11][0], spheno_data[11][1], spheno_data[11][2], spheno_data[11][3],
+                           spheno_data[11][4], spheno_data[11][5], spheno_data[11][6], spheno_data[11][7], spheno_data[11][8], 
+                           vll))
+                f.write("""
 #--------------------------------
 # Mixing Angles, LR:
 #--------------------------------
-{57} \t {117}
-{58} \t {118}
-{59} \t {119}
-{60} \t {120}
-{61} \t {121}
-{62} \t {122}
-{63} \t {123}
-{64} \t {124}
-{65} \t {125}
-{71}
+{0} \t {9}
+{1} \t {10}
+{2} \t {11}
+{3} \t {12}
+{4} \t {13}
+{5} \t {14}
+{6} \t {15}
+{7} \t {16}
+{8} \t {17}
+{18}
 #--------------------------------
-                """.format(m_hh1, m_hh2, m_hh3, m_ah, m_pgs, m_chh, spheno_data[0][0], spheno_data[0][1], spheno_data[0][2],
-                           spheno_data[0][3], spheno_data[0][4], spheno_data[0][5], spheno_data[1][0], spheno_data[1][1],
-                           spheno_data[1][2], spheno_data[1][3],
-                           spheno_data[1][4], spheno_data[1][5], spheno_data[1][6], spheno_data[1][7], spheno_data[1][8],
-                           spheno_data[2][0], spheno_data[2][1], spheno_data[2][2], spheno_data[2][3], spheno_data[2][4],
-                           spheno_data[2][5], spheno_data[2][6], spheno_data[2][7], spheno_data[2][8], spheno_data[3][0],
-                           spheno_data[3][1], spheno_data[3][2], spheno_data[3][3], spheno_data[3][4], spheno_data[3][5],
-                           spheno_data[3][6], spheno_data[3][7], spheno_data[3][8], spheno_data[4][0], spheno_data[4][1],
-                           spheno_data[4][2], spheno_data[4][3], spheno_data[4][4], spheno_data[4][5], spheno_data[4][6], 
-                           spheno_data[4][7], spheno_data[4][8], spheno_data[5][0], spheno_data[5][1], spheno_data[5][2], 
-                           spheno_data[5][3], spheno_data[5][4], spheno_data[5][5], spheno_data[5][6], spheno_data[5][7], 
-                           spheno_data[5][8], spheno_data[6][0], spheno_data[6][1], spheno_data[6][2], spheno_data[6][3],
+                """.format(spheno_data[6][0], spheno_data[6][1], spheno_data[6][2], spheno_data[6][3],
                            spheno_data[6][4], spheno_data[6][5], spheno_data[6][6], spheno_data[6][7], spheno_data[6][8],
-                           vld, vrd, vlu, vru, vll, vrl,
-                           spheno_data[7][0], spheno_data[7][1], spheno_data[7][2], spheno_data[7][3], spheno_data[7][4],
-                           spheno_data[7][5], spheno_data[7][6], spheno_data[7][7], spheno_data[7][8], spheno_data[8][0],
-                           spheno_data[8][1], spheno_data[8][2], spheno_data[8][3], spheno_data[8][4], spheno_data[8][5],
-                           spheno_data[8][6], spheno_data[8][7], spheno_data[8][8], spheno_data[9][0], spheno_data[9][1],
-                           spheno_data[9][2], spheno_data[9][3], spheno_data[9][4], spheno_data[9][5], spheno_data[9][6], 
-                           spheno_data[9][7], spheno_data[9][8], spheno_data[10][0], spheno_data[10][1], spheno_data[10][2], 
-                           spheno_data[10][3], spheno_data[10][4], spheno_data[10][5], spheno_data[10][6], spheno_data[10][7], 
-                           spheno_data[10][8], spheno_data[11][0], spheno_data[11][1], spheno_data[11][2], spheno_data[11][3],
-                           spheno_data[11][4], spheno_data[11][5], spheno_data[11][6], spheno_data[11][7], spheno_data[11][8],
                            spheno_data[12][0], spheno_data[12][1], spheno_data[12][2], spheno_data[12][3], spheno_data[12][4],
-                           spheno_data[12][5], spheno_data[12][6], spheno_data[12][7], spheno_data[12][8]))
+                           spheno_data[12][5], spheno_data[12][6], spheno_data[12][7], spheno_data[12][8], vrl))
                 f.write("""
 #------------------------------------
 # Scalar Mixing Matrix
@@ -625,7 +638,7 @@ m_chh: {5} \t {11}
 {0} \t {3} # T
 {1} \t {4} # S
 {2} \t {5} # U
-                """.format(T, S, U, t, s, u))
+                    """.format(T, S, U, t, s, u))
                 
     def savePreSPhenoParams(self, m_hh1, m_hh2, m_hh3, m_ah, m_pgs, m_chh, num_gamma1, num_Mub, num_Mu3, num_Lambda1, num_Lambda2,
                         num_Lambda3, num_Lambda4, num_Lambda1Dash, num_Lambda2Dash, num_Lambda3Dash, num_Mu1, num_Mu2,

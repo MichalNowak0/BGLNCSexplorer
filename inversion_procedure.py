@@ -92,7 +92,6 @@ class InversionProcedure():
     # ## Defining of Functions for the Inversion Procedure:
     def scalar_inversion(self, num_gamma1, Aa1, num_Aa2, num_Aa3, num_Aa4, m_hh1, m_hh2, m_hh3, m_ah, m_pgs, m_chh, num_v, num_v_1, num_v_2,                     num_v_3, num_a1, num_a2, num_a3):
         # Using the analytical inversion equations to express parameters in terms of other parameters & observables:
-        #num_gamma1 = fast_gamma1(num_Aa1, m_ah, m_pgs, num_v)
         num_Aa1 = self.fast_Aa1(num_gamma1, m_ah, m_pgs, num_v)
         num_Mub = self.fast_Mub(num_Aa1, m_ah, m_pgs, num_v_1, num_v_2, num_v_3, num_gamma1)
         num_Mu3 = self.fast_Mu3(num_Aa1, m_ah, m_pgs, num_v, num_v_1, num_v_2, num_v_3, num_gamma1)

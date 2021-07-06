@@ -63,7 +63,7 @@ m_hh3_sRange = [80, 500]
 # CP-odd:
 m_ah_sRange = [80, 500]
 # Pseudo-Goldstone:
-m_pgs_sRange = [0.1, 10]
+m_pgs_sRange = [80, 500]
 # Charged:
 m_chh_sRange = [80, 500]
 
@@ -147,6 +147,21 @@ def makeNewRunFolder(now):
     os.chdir(thisRunDir)
     return thisRunDir
 
+
+# Make a new folder for this run. Named with timestamp:
+now = dt.datetime.now()
+thisRunDir = makeNewRunFolder(now)
+
+instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
+                m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
+
+# Commenting this away saves more data, but can easily overflow the available disc space in a real 
+# data-production run. It is recommended to only comment this for debugging purposes.
+instDataHandler.dataBunching(thisRunDir)
+    
+#---------------------------------------------------------------------------------------------
+
+"""
 for i in range(runNum):
     
     # Make a new folder for this run. Named with timestamp:
@@ -156,10 +171,9 @@ for i in range(runNum):
     instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
                     m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
     
-    #print("end ", i)
-    
+    # Commenting this away saves more data, but can easily overflow the available disc space in a real 
+    # data-production run. It is recommended to only comment this for debugging purposes.
     instDataHandler.dataBunching(thisRunDir)
     
-    #print("end ", i, " datahandling")
-    
 #---------------------------------------------------------------------------------------------
+"""
