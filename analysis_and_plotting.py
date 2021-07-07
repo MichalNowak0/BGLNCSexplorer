@@ -423,12 +423,21 @@ analysis_dir_name  = 'analysis_results_{}'.format(now)
 os.mkdir(analysis_dir_name)
 os.chdir(analysis_dir_name)
 
-# save the results of the analysis
+# save the analysis statistics
 inst.create_data_file(list_of_runs_to_harvest, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p)
 
 # create the plots
+inst.br_plotter(v1_accumulated, v2_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio)
+inst.stu_plotter(s_prespheno, t_prespheno, u_prespheno, betas)
+inst.mass_plotter(s_prespheno, t_prespheno, u_prespheno, betas, delta2_accumulated, delta3_accumulated, v1_accumulated,
+                v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,
+                mHPlus_accumulated)
+inst.stu_differences_plotter(num, t_spheno, s_spheno, u_spheno, t_prespheno, s_prespheno, u_prespheno)
+
+
+"""
 plotter(s_prespheno, t_prespheno, u_prespheno, betas, delta2_accumulated, delta3_accumulated, v1_accumulated,
 v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,
 mHPlus_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio)
-
+"""
 #stu_differences_plotter(num, t_spheno, s_spheno, u_spheno, t_prespheno, s_prespheno, u_prespheno)
