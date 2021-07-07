@@ -8,12 +8,6 @@ Created on Thu Jun 10 01:40:38 2021
 import os
 import numpy as np
 import datetime as dt
-#import sys
-#import math
-#from sympy import *
-#from scipy.optimize import fsolve
-#import subprocess
-#import glob
 
 import wrapper_loop
 import data_handling
