@@ -30,7 +30,7 @@ cluster_run = True
 # number of runs to make:
 runNum = 3
 # number of parameter-points to generate per run:
-maxRunNum = 50
+maxRunNum = 500
 # IMPORTANT: the total number of parameter-points will be runNum*maxRunNUm
 
 # Versions of the diffrent programs:

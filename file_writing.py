@@ -399,11 +399,11 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
         spheno_data = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
         data_spheno = os.path.join(os.getcwd(), 'SPheno.spc.{}'.format(self.sarah_model_version))
         if not os.path.exists(data_spheno):
-            raise Exception("No SPheno output!")
-            #return None
+            #raise Exception("No SPheno output!")
+            return None
         #print(data_spheno)
         else:
-            list_of_checks = [False for i in range(12)]
+            list_of_checks = [False for i in range(15)]
             with open(data_spheno, 'r') as R:
                 index = -1
                 for line in R.readlines():

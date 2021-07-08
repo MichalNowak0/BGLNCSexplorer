@@ -25,8 +25,13 @@ class Visualization():
         pass
     
     def br_plotter(self, v1_accumulated, v2_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio):
-        # plots the branching ratios from flavio in vatrious ways.
         
+        # plots the branching ratios from flavio in various ways.
+        
+        #-----------------------------------------------------------------------------------------
+        # :
+        
+        plt.clf()
         # sets the font size to ba larger
         plt.rcParams.update({'font.size': 15})
         
@@ -51,12 +56,27 @@ class Visualization():
         
         plt.clf()
         
+        #---------------------------------------------------------------------------------------------
+        # decays to leptons:
+        
         plt.title(r'BR($B_0\rightarrow e^+e^-$)/BR$_{SM}$($B_0\rightarrow e^+e^-$)')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v1_accumulated, BRB0eeNP_Ratio, marker = '+')
-        plt.savefig("BRB0toeeV1.png", dpi=600)
+        plt.ylim(0, 20)
+        plt.savefig("BRB0toeeV1_lim_0_20.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'BR($B_0\rightarrow e^+e^-$)/BR$_{SM}$($B_0\rightarrow e^+e^-$)')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, BRB0eeNP_Ratio, marker = '+')
+        plt.ylim(0, 3)
+        plt.savefig("BRB0toeeV1_lim_0_3.png", dpi=600)
         plt.show()
         
         plt.clf()
@@ -66,7 +86,19 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, BRB0eeNP_Ratio, marker = '+')
-        plt.savefig("BRB0toeeV2.png", dpi=600)
+        plt.ylim(0, 20)
+        plt.savefig("BRB0toeeV2_lim_0_20.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'BR($B_0\rightarrow e^+e^-$)/BR$_{SM}$($B_0\rightarrow e^+e^-$)')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, BRB0eeNP_Ratio, marker = '+')
+        plt.ylim(0, 3)
+        plt.savefig("BRB0toeeV2_lim_0_3.png", dpi=600)
         plt.show()
         
         plt.clf()
@@ -82,11 +114,33 @@ class Visualization():
         plt.clf()
         
         plt.title(r'BR($K_+\rightarrow \pi^+\nu \overline{\nu}$)/BR$_{SM}$($K_+\rightarrow \pi^+\nu \overline{\nu}$)')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, BRKPLuspinunu_Ratio, marker = '+')
+        plt.ylim(0.80, 1.20)
+        plt.savefig("BRKplustoPinunuV1_lim_p8_1p2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'BR($K_+\rightarrow \pi^+\nu \overline{\nu}$)/BR$_{SM}$($K_+\rightarrow \pi^+\nu \overline{\nu}$)')
         plt.xlabel(r'$v_2$, [GeV]')
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, BRKPLuspinunu_Ratio, marker = '+')
         plt.savefig("BRKplustoPinunuV2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'BR($K_+\rightarrow \pi^+\nu \overline{\nu}$)/BR$_{SM}$($K_+\rightarrow \pi^+\nu \overline{\nu}$)')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, BRKPLuspinunu_Ratio, marker = '+')
+        plt.ylim(0.80, 1.20)
+        plt.savefig("BRKplustoPinunuV2_lim_p8_1p2.png", dpi=600)
         plt.show()
         
         plt.clf()
@@ -102,6 +156,17 @@ class Visualization():
         plt.clf()
         
         plt.title(r'BR($B_0\rightarrow \mu^-\mu^+$)/BR$_{SM}$($B_0\rightarrow \mu^-\mu^+$)')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, BXB0mumu_Ratio, marker = '+')
+        plt.ylim(0, 3)
+        plt.savefig("BRB0tomumuV1_lim_0_3.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'BR($B_0\rightarrow \mu^-\mu^+$)/BR$_{SM}$($B_0\rightarrow \mu^-\mu^+$)')
         plt.xlabel(r'$v_2$, [GeV]')
         plt.ylabel(r'BR')
         plt.grid(True)
@@ -109,13 +174,25 @@ class Visualization():
         plt.savefig("BRB0tomumuV2.png", dpi=600)
         plt.show()
         
+        plt.clf()
+        
+        plt.title(r'BR($B_0\rightarrow \mu^-\mu^+$)/BR$_{SM}$($B_0\rightarrow \mu^-\mu^+$)')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, BXB0mumu_Ratio, marker = '+')
+        plt.ylim(0, 3)
+        plt.savefig("BRB0tomumuV2_lim_0_3.png", dpi=600)
+        plt.show()
+        
     def stu_plotter(self, s, t, u, betas):
         # plots the stu parameters in various ways.
         
+        plt.clf()
         # sets the font size to ba larger
         plt.rcParams.update({'font.size': 15})
         
-        plt.title(r'Oblique Parameters: S(T)')
+        plt.title(r'Oblique Parameters: S vs T')
         plt.xlabel(r'T')
         plt.ylabel(r'S')
         plt.grid(True)
@@ -126,7 +203,7 @@ class Visualization():
         
         plt.clf()
         
-        plt.title(r'Oblique Parameters: U(T)')
+        plt.title(r'Oblique Parameters: U vs T')
         plt.xlabel(r'T')
         plt.ylabel(r'U')
         plt.grid(True)
@@ -140,11 +217,14 @@ class Visualization():
                 mHPlus_accumulated):
         # plots the scalar masses in various ways.
         
+        plt.clf()
         # sets the font size to ba larger
         plt.rcParams.update({'font.size': 15})
         
-        plt.clf()
+        #--------------------------------------------------------------------------------------------
+        # Masses vs vev:s:
         
+        """
         plt.title(r'$m_{H^{\pm}}$ as a Function of Vev:s')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'$v_2$, [GeV]')
@@ -155,7 +235,28 @@ class Visualization():
         plt.show()
         
         plt.clf()
+        """
         
+        plt.title(r'$m_{H^{\pm}}$ as a Function of $v_1$')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'$m_{H^{\pm}}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, mHPlus_accumulated, marker = '+')
+        plt.savefig("mHPlus_v_1.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'$m_{H^{\pm}}$ as a Function of $v_2$')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'$m_{H^{\pm}}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, mHPlus_accumulated, marker = '+')
+        plt.savefig("mHPlus_v_2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        """
         plt.title(r'$m_{A}$ as a Function of Vev:s')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'$v_2$, [GeV]')
@@ -166,7 +267,28 @@ class Visualization():
         plt.show()
         
         plt.clf()
+        """
         
+        plt.title(r'$m_{A}$ as a Function of $v_1$')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'$m_{A}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, mA_accumulated, marker = '+')
+        plt.savefig("mA_v_1.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'$m_{A}$ as a Function of $v_2$')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'$m_{A}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, mA_accumulated, marker = '+')
+        plt.savefig("mA_v_2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        """
         plt.title(r'$m_{\chi}$ as a Function of Vev:s')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'$v_2$, [GeV]')
@@ -177,7 +299,28 @@ class Visualization():
         plt.show()
         
         plt.clf()
+        """
         
+        plt.title(r'$m_{\chi}$ as a Function of $v_1$')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'$m_{\chi}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, mChi_accumulated, marker = '+')
+        plt.savefig("mChi_v_1.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'$m_{\chi}$ as a Function of $v_2$')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'$m_{\chi}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, mChi_accumulated, marker = '+')
+        plt.savefig("mChi_v_2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        """
         plt.title(r'$m_{H}$ as a Function of Vev:s')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'$v_2$, [GeV]')
@@ -188,7 +331,28 @@ class Visualization():
         plt.show()
         
         plt.clf()
+        """
         
+        plt.title(r'$m_{H}$ as a Function of $v_1$')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'$m_{H}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, mH_accumulated, marker = '+')
+        plt.savefig("mH_v_1.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'$m_{H}$ as a Function of $v_2$')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'$m_{H}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, mH_accumulated, marker = '+')
+        plt.savefig("mH_v_2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        """
         plt.title(r'$m_{\varsigma}$ as a Function of Vev:s')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'$v_2$, [GeV]')
@@ -199,6 +363,30 @@ class Visualization():
         plt.show()
         
         plt.clf()
+        """
+        
+        plt.title(r'$m_{\varsigma}$ as a Function of $v_1$')
+        plt.xlabel(r'$v_1$, [GeV]')
+        plt.ylabel(r'$m_{\varsigma}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v1_accumulated, mS_accumulated, marker = '+')
+        plt.savefig("mS_v_1.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'$m_{\varsigma}$ as a Function of $v_2$')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'$m_{\varsigma}$ [GeV]')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, mS_accumulated, marker = '+')
+        plt.savefig("mS_v_2.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        #----------------------------------------------------------------------------------------------------
+        # masses on grid of the off-alignment deltas:
         
         plt.title(r'$m_{H^{\pm}}$ as a Function of $\delta_2$ and $\delta_3$')
         plt.xlabel(r'$\delta_2$')
@@ -255,6 +443,9 @@ class Visualization():
         
         plt.clf()
         
+        #----------------------------------------------------------------------------------------------
+        # masses plotted against eachother:
+        
         plt.title(r'$m_{\varsigma}$ as a Function of $m_H$')
         plt.xlabel(r'$m_H$, [GeV]')
         plt.ylabel(r'$m_{\varsigma}$, [GeV]')
@@ -275,6 +466,16 @@ class Visualization():
         
         plt.clf()
         
+        plt.title(r'$m_{\varsigma}$ as a Function of $m_{\chi}$')
+        plt.xlabel(r'$m_{\chi}$, [GeV]')
+        plt.ylabel(r'$m_{\varsigma}$, [GeV]')
+        plt.grid(True)
+        plt.scatter(mChi_accumulated, mS_accumulated, marker = '+')
+        plt.savefig("mS_m_chi.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
         plt.title(r'$m_{H^{\pm}}$ as a Function of $m_H$')
         plt.xlabel(r'$m_H$, [GeV]')
         plt.ylabel(r'$m_{H^{\pm}}$, [GeV]')
@@ -284,9 +485,21 @@ class Visualization():
         plt.show()
         
         plt.clf()
+        
+        plt.title(r'$m_{H^{\pm}}$ as a Function of $m_A$')
+        plt.xlabel(r'$m_A$, [GeV]')
+        plt.ylabel(r'$m_{H^{\pm}}$, [GeV]')
+        plt.grid(True)
+        plt.scatter(mA_accumulated, mHPlus_accumulated, marker = '+')
+        plt.savefig("mHPlus_m_A.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
 
     def stu_differences_plotter(self, num, t_spheno, s_spheno, u_spheno, t_prespheno, s_prespheno, u_prespheno):
         # Here, the electroweak precision observables (STU) are plotted:
+            
+        plt.clf()
         """
         plt.title("The T Parameter")
         plt.xlabel("Index")
