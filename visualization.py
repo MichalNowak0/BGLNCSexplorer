@@ -24,7 +24,8 @@ class Visualization():
         # preferably run from analysis_and_plotting.py
         pass
     
-    def br_plotter(self, v1_accumulated, v2_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio):
+    def br_plotter(self, v1_accumulated, v2_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio,
+                   mH_accumulated, mS_accumulated, delta2_accumulated, delta3_accumulated):
         
         # plots the branching ratios from flavio in various ways.
         
@@ -40,7 +41,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)                  # enables a background grid in the plot
         plt.scatter(v1_accumulated, brB_to_Xsgamma, marker = '+')
-        plt.savefig("BRXsgammaV1.png", dpi=600)
+        plt.savefig("BRXsgammaV1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         # clears the figure space
@@ -51,7 +52,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, brB_to_Xsgamma, marker = '+')
-        plt.savefig("BRXsgammaV2.png", dpi=600)
+        plt.savefig("BRXsgammaV2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -59,13 +60,14 @@ class Visualization():
         #---------------------------------------------------------------------------------------------
         # decays to leptons:
         
+        # decay of B_0 to e+ e-, plotted against v_1:
         plt.title(r'BR($B_0\rightarrow e^+e^-$)/BR$_{SM}$($B_0\rightarrow e^+e^-$)')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v1_accumulated, BRB0eeNP_Ratio, marker = '+')
         plt.ylim(0, 20)
-        plt.savefig("BRB0toeeV1_lim_0_20.png", dpi=600)
+        plt.savefig("BRB0toeeV1_lim_0_20.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -74,9 +76,22 @@ class Visualization():
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'BR')
         plt.grid(True)
-        plt.scatter(v1_accumulated, BRB0eeNP_Ratio, marker = '+')
-        plt.ylim(0, 3)
-        plt.savefig("BRB0toeeV1_lim_0_3.png", dpi=600)
+        plt.scatter(v1_accumulated, BRB0eeNP_Ratio, marker = '+', c = delta2_accumulated)
+        plt.colorbar(label = r'delta_2')
+        plt.ylim(0, 5)
+        plt.savefig("BRB0toeeV1_lim_0_5_c_is_delta2.png", dpi=600, bbox_inches="tight")
+        plt.show()
+        
+        plt.clf()
+        
+        # decay of B_0 to e+ e-, plotted against v_2:
+        plt.title(r'BR($B_0\rightarrow e^+e^-$)/BR$_{SM}$($B_0\rightarrow e^+e^-$)')
+        plt.xlabel(r'$v_2$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(v2_accumulated, BRB0eeNP_Ratio, marker = '+')
+        plt.ylim(0, 20)
+        plt.savefig("BRB0toeeV2_lim_0_20.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -86,23 +101,26 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, BRB0eeNP_Ratio, marker = '+')
-        plt.ylim(0, 20)
-        plt.savefig("BRB0toeeV2_lim_0_20.png", dpi=600)
+        plt.ylim(0, 5)
+        plt.savefig("BRB0toeeV2_lim_0_5.png", dpi=600)
         plt.show()
         
         plt.clf()
         
+        # decay of B_0 to e+ e-, plotted against m_H:
         plt.title(r'BR($B_0\rightarrow e^+e^-$)/BR$_{SM}$($B_0\rightarrow e^+e^-$)')
-        plt.xlabel(r'$v_2$, [GeV]')
+        plt.xlabel(r'$m_H$, [GeV]')
         plt.ylabel(r'BR')
         plt.grid(True)
-        plt.scatter(v2_accumulated, BRB0eeNP_Ratio, marker = '+')
-        plt.ylim(0, 3)
-        plt.savefig("BRB0toeeV2_lim_0_3.png", dpi=600)
+        plt.scatter(mH_accumulated, BRB0eeNP_Ratio, marker = '+', c = delta2_accumulated)
+        plt.colorbar(label = r'delta_2')
+        plt.ylim(0, 5)
+        plt.savefig("BRB0toeeMH_lim_0_5_c_is_delta2.png", dpi=600)
         plt.show()
         
         plt.clf()
         
+        # decay of K_+ to pi^+, nu and nuBar, plotted against v_1:
         plt.title(r'BR($K_+\rightarrow \pi^+\nu \overline{\nu}$)/BR$_{SM}$($K_+\rightarrow \pi^+\nu \overline{\nu}$)')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'BR')
@@ -124,6 +142,7 @@ class Visualization():
         
         plt.clf()
         
+        # decay of K_+ to pi^+, nu and nuBar, plotted against v_2:
         plt.title(r'BR($K_+\rightarrow \pi^+\nu \overline{\nu}$)/BR$_{SM}$($K_+\rightarrow \pi^+\nu \overline{\nu}$)')
         plt.xlabel(r'$v_2$, [GeV]')
         plt.ylabel(r'BR')
@@ -145,6 +164,7 @@ class Visualization():
         
         plt.clf()
         
+        # decay of B_0 to mu+ mu-, plotted against v_1:
         plt.title(r'BR($B_0\rightarrow \mu^-\mu^+$)/BR$_{SM}$($B_0\rightarrow \mu^-\mu^+$)')
         plt.xlabel(r'$v_1$, [GeV]')
         plt.ylabel(r'BR')
@@ -160,12 +180,13 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v1_accumulated, BXB0mumu_Ratio, marker = '+')
-        plt.ylim(0, 3)
-        plt.savefig("BRB0tomumuV1_lim_0_3.png", dpi=600)
+        plt.ylim(0, 5)
+        plt.savefig("BRB0tomumuV1_lim_0_5.png", dpi=600)
         plt.show()
         
         plt.clf()
         
+        # decay of B_0 to mu+ mu-, plotted against v_2:
         plt.title(r'BR($B_0\rightarrow \mu^-\mu^+$)/BR$_{SM}$($B_0\rightarrow \mu^-\mu^+$)')
         plt.xlabel(r'$v_2$, [GeV]')
         plt.ylabel(r'BR')
@@ -181,8 +202,19 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, BXB0mumu_Ratio, marker = '+')
-        plt.ylim(0, 3)
-        plt.savefig("BRB0tomumuV2_lim_0_3.png", dpi=600)
+        plt.ylim(0, 5)
+        plt.savefig("BRB0tomumuV2_lim_0_5.png", dpi=600)
+        plt.show()
+        
+        plt.clf()
+        
+        plt.title(r'BR($B_0\rightarrow \mu^-\mu^+$)/BR$_{SM}$($B_0\rightarrow \mu^-\mu^+$)')
+        plt.xlabel(r'$m_H$, [GeV]')
+        plt.ylabel(r'BR')
+        plt.grid(True)
+        plt.scatter(mH_accumulated, BXB0mumu_Ratio, marker = '+')
+        plt.ylim(0, 5)
+        plt.savefig("BRB0tomumumH_lim_0_5.png", dpi=600)
         plt.show()
         
     def stu_plotter(self, s, t, u, betas):
