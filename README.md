@@ -15,6 +15,12 @@ If you want to use the bash scripts to run the program on a cluster, the followi
 2. Make sure the variable `cluster_run` in `wrapper_master.py` is set to True.
 3. The bash scripts are confígured to run on a specific partition on the LUNARC AURORA cluster. To run it you need to at least input your email address in the indicated spot in the two aforementioned .sh files. You also need to potentially change the time, nodes & cores requested for the run. 
 
+The function of the various python files and their interdependence is summarized in the table below:
+
+| File | Description | Dependence |
+| --- | --- | --- |
+| `wrapper_master` | **The main excution file**. | Calls `wrapper_loop` and `data_handling` |
+| `wrapper_loop` | The main loop. 1 Iteration = 1 Point. | Calls `inversion_procedure`, `electroweak_precision_observables` and `file_writing`|
 | `analysis_and_plotting` | Harvests from files and analyzes the data. **Executed independently from master**. | Calls `visualization`|
 | `inversion_procedure` | Implements the inversion procedure for the Yukawa and scalar sectors. | None |
 | `electroweak_precision_observables` | Calculates the electroweak precision observables. | None |
