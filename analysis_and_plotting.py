@@ -508,7 +508,7 @@ class Analysis_And_Plotting(visualization.Visualization):
 
 #---------------------------------------------------------------------------------------------
 # This this being done on the cluster or not?
-cluster_or_not = True
+cluster_or_not = False
 
 # Set up the paths:
 working_dir = os.getcwd()

@@ -8,12 +8,6 @@ Created on Thu Jun 10 01:40:38 2021
 import os
 import numpy as np
 import datetime as dt
-#import sys
-#import math
-#from sympy import *
-#from scipy.optimize import fsolve
-#import subprocess
-#import glob
 
 import wrapper_loop
 import data_handling
@@ -27,11 +21,8 @@ import data_handling
 
 # local or cluster execution:
 cluster_run = True
-# number of runs to make:
-runNum = 3
 # number of parameter-points to generate per run:
 maxRunNum = 500
-# IMPORTANT: the total number of parameter-points will be runNum*maxRunNUm
 
 # Versions of the diffrent programs:
 sarah_model_version = 'BGLNCS_stripped'
@@ -160,20 +151,3 @@ instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, ga
 instDataHandler.dataBunching(thisRunDir)
     
 #---------------------------------------------------------------------------------------------
-
-"""
-for i in range(runNum):
-    
-    # Make a new folder for this run. Named with timestamp:
-    now = dt.datetime.now()
-    thisRunDir = makeNewRunFolder(now)
-
-    instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
-                    m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
-    
-    # Commenting this away saves more data, but can easily overflow the available disc space in a real 
-    # data-production run. It is recommended to only comment this for debugging purposes.
-    instDataHandler.dataBunching(thisRunDir)
-    
-#---------------------------------------------------------------------------------------------
-"""

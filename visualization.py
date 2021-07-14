@@ -77,7 +77,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v1_accumulated, BRB0eeNP_Ratio, marker = '+', c = delta2_accumulated)
-        plt.colorbar(label = r'delta_2')
+        plt.colorbar(label = r'$\delta_2$')
         plt.ylim(0, 5)
         plt.savefig("BRB0toeeV1_lim_0_5_c_is_delta2.png", dpi=600, bbox_inches="tight")
         plt.show()
@@ -102,7 +102,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(v2_accumulated, BRB0eeNP_Ratio, marker = '+')
         plt.ylim(0, 5)
-        plt.savefig("BRB0toeeV2_lim_0_5.png", dpi=600)
+        plt.savefig("BRB0toeeV2_lim_0_5.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -113,9 +113,9 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(mH_accumulated, BRB0eeNP_Ratio, marker = '+', c = delta2_accumulated)
-        plt.colorbar(label = r'delta_2')
+        plt.colorbar(label = r'$\delta_2$')
         plt.ylim(0, 5)
-        plt.savefig("BRB0toeeMH_lim_0_5_c_is_delta2.png", dpi=600)
+        plt.savefig("BRB0toeeMH_lim_0_5_c_is_delta2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -126,7 +126,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v1_accumulated, BRKPLuspinunu_Ratio, marker = '+')
-        plt.savefig("BRKplustoPinunuV1.png", dpi=600)
+        plt.savefig("BRKplustoPinunuV1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -137,7 +137,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(v1_accumulated, BRKPLuspinunu_Ratio, marker = '+')
         plt.ylim(0.80, 1.20)
-        plt.savefig("BRKplustoPinunuV1_lim_p8_1p2.png", dpi=600)
+        plt.savefig("BRKplustoPinunuV1_lim_p8_1p2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -148,7 +148,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, BRKPLuspinunu_Ratio, marker = '+')
-        plt.savefig("BRKplustoPinunuV2.png", dpi=600)
+        plt.savefig("BRKplustoPinunuV2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -159,7 +159,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(v2_accumulated, BRKPLuspinunu_Ratio, marker = '+')
         plt.ylim(0.80, 1.20)
-        plt.savefig("BRKplustoPinunuV2_lim_p8_1p2.png", dpi=600)
+        plt.savefig("BRKplustoPinunuV2_lim_p8_1p2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -170,7 +170,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v1_accumulated, BXB0mumu_Ratio, marker = '+')
-        plt.savefig("BRB0tomumuV1.png", dpi=600)
+        plt.savefig("BRB0tomumuV1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -181,7 +181,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(v1_accumulated, BXB0mumu_Ratio, marker = '+')
         plt.ylim(0, 5)
-        plt.savefig("BRB0tomumuV1_lim_0_5.png", dpi=600)
+        plt.savefig("BRB0tomumuV1_lim_0_5.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -192,7 +192,7 @@ class Visualization():
         plt.ylabel(r'BR')
         plt.grid(True)
         plt.scatter(v2_accumulated, BXB0mumu_Ratio, marker = '+')
-        plt.savefig("BRB0tomumuV2.png", dpi=600)
+        plt.savefig("BRB0tomumuV2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -203,7 +203,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(v2_accumulated, BXB0mumu_Ratio, marker = '+')
         plt.ylim(0, 5)
-        plt.savefig("BRB0tomumuV2_lim_0_5.png", dpi=600)
+        plt.savefig("BRB0tomumuV2_lim_0_5.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -214,7 +214,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(mH_accumulated, BXB0mumu_Ratio, marker = '+')
         plt.ylim(0, 5)
-        plt.savefig("BRB0tomumumH_lim_0_5.png", dpi=600)
+        plt.savefig("BRB0tomumumH_lim_0_5.png", dpi=600, bbox_inches="tight")
         plt.show()
         
     def stu_plotter(self, s, t, u, betas):
@@ -229,8 +229,8 @@ class Visualization():
         plt.ylabel(r'S')
         plt.grid(True)
         plt.scatter(t, s, marker = '+', c = betas)
-        plt.colorbar(label = r'Beta [radians]')
-        plt.savefig("s_vs_t.png", dpi=600)
+        plt.colorbar(label = r'$\beta$ [radians]')
+        plt.savefig("s_vs_t.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -240,8 +240,8 @@ class Visualization():
         plt.ylabel(r'U')
         plt.grid(True)
         plt.scatter(t, u, marker = 'x', c = betas)
-        plt.colorbar(label = r'Beta [radians]')
-        plt.savefig("u_vs_t.png", dpi=600)
+        plt.colorbar(label = r'$\beta$ [radians]')
+        plt.savefig("u_vs_t.png", dpi=600, bbox_inches="tight")
         plt.show()
     
     def mass_plotter(self, s, t, u, betas, delta2_accumulated, delta3_accumulated, v1_accumulated,
@@ -274,7 +274,7 @@ class Visualization():
         plt.ylabel(r'$m_{H^{\pm}}$ [GeV]')
         plt.grid(True)
         plt.scatter(v1_accumulated, mHPlus_accumulated, marker = '+')
-        plt.savefig("mHPlus_v_1.png", dpi=600)
+        plt.savefig("mHPlus_v_1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -284,7 +284,7 @@ class Visualization():
         plt.ylabel(r'$m_{H^{\pm}}$ [GeV]')
         plt.grid(True)
         plt.scatter(v2_accumulated, mHPlus_accumulated, marker = '+')
-        plt.savefig("mHPlus_v_2.png", dpi=600)
+        plt.savefig("mHPlus_v_2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -306,7 +306,7 @@ class Visualization():
         plt.ylabel(r'$m_{A}$ [GeV]')
         plt.grid(True)
         plt.scatter(v1_accumulated, mA_accumulated, marker = '+')
-        plt.savefig("mA_v_1.png", dpi=600)
+        plt.savefig("mA_v_1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -316,7 +316,7 @@ class Visualization():
         plt.ylabel(r'$m_{A}$ [GeV]')
         plt.grid(True)
         plt.scatter(v2_accumulated, mA_accumulated, marker = '+')
-        plt.savefig("mA_v_2.png", dpi=600)
+        plt.savefig("mA_v_2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -338,7 +338,7 @@ class Visualization():
         plt.ylabel(r'$m_{\chi}$ [GeV]')
         plt.grid(True)
         plt.scatter(v1_accumulated, mChi_accumulated, marker = '+')
-        plt.savefig("mChi_v_1.png", dpi=600)
+        plt.savefig("mChi_v_1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -348,7 +348,7 @@ class Visualization():
         plt.ylabel(r'$m_{\chi}$ [GeV]')
         plt.grid(True)
         plt.scatter(v2_accumulated, mChi_accumulated, marker = '+')
-        plt.savefig("mChi_v_2.png", dpi=600)
+        plt.savefig("mChi_v_2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -370,7 +370,7 @@ class Visualization():
         plt.ylabel(r'$m_{H}$ [GeV]')
         plt.grid(True)
         plt.scatter(v1_accumulated, mH_accumulated, marker = '+')
-        plt.savefig("mH_v_1.png", dpi=600)
+        plt.savefig("mH_v_1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -380,7 +380,7 @@ class Visualization():
         plt.ylabel(r'$m_{H}$ [GeV]')
         plt.grid(True)
         plt.scatter(v2_accumulated, mH_accumulated, marker = '+')
-        plt.savefig("mH_v_2.png", dpi=600)
+        plt.savefig("mH_v_2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -402,7 +402,7 @@ class Visualization():
         plt.ylabel(r'$m_{\varsigma}$ [GeV]')
         plt.grid(True)
         plt.scatter(v1_accumulated, mS_accumulated, marker = '+')
-        plt.savefig("mS_v_1.png", dpi=600)
+        plt.savefig("mS_v_1.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -412,7 +412,7 @@ class Visualization():
         plt.ylabel(r'$m_{\varsigma}$ [GeV]')
         plt.grid(True)
         plt.scatter(v2_accumulated, mS_accumulated, marker = '+')
-        plt.savefig("mS_v_2.png", dpi=600)
+        plt.savefig("mS_v_2.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -426,18 +426,18 @@ class Visualization():
         plt.grid(True)
         plt.scatter(delta2_accumulated, delta3_accumulated, marker = '+', c = mHPlus_accumulated)
         plt.colorbar(label = r'$m_{H^{\pm}}$ [GeV]')
-        plt.savefig("mHPlus_deltas.png", dpi=600)
+        plt.savefig("mHPlus_deltas.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
         
         plt.title(r'$m_{A}$ as a Function of $\delta_2$ and $\delta_3$')
-        plt.xlabel('$\delta_2$')
-        plt.ylabel('$\delta_3$')
+        plt.xlabel(r'$\delta_2$')
+        plt.ylabel(r'$\delta_3$')
         plt.grid(True)
         plt.scatter(delta2_accumulated, delta3_accumulated, marker = '+', c = mA_accumulated)
         plt.colorbar(label = r'$m_{A}$ [GeV]')
-        plt.savefig("mA_deltas.png", dpi=600)
+        plt.savefig("mA_deltas.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -448,7 +448,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(delta2_accumulated, delta3_accumulated, marker = '+', c = mChi_accumulated)
         plt.colorbar(label = r'$m_{\chi}$ [GeV]')
-        plt.savefig("mChi_deltas.png", dpi=600)
+        plt.savefig("mChi_deltas.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -459,7 +459,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(delta2_accumulated, delta3_accumulated, marker = '+', c = mH_accumulated)
         plt.colorbar(label = r'$m_{H}$ [GeV]')
-        plt.savefig("mH_deltas.png", dpi=600)
+        plt.savefig("mH_deltas.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -470,7 +470,7 @@ class Visualization():
         plt.grid(True)
         plt.scatter(delta2_accumulated, delta3_accumulated, marker = '+', c = mS_accumulated)
         plt.colorbar(label = r'$m_{\varsigma}$ [GeV]')
-        plt.savefig("mS_deltas.png", dpi=600)
+        plt.savefig("mS_deltas.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -483,7 +483,7 @@ class Visualization():
         plt.ylabel(r'$m_{\varsigma}$, [GeV]')
         plt.grid(True)
         plt.scatter(mH_accumulated, mS_accumulated, marker = '+')
-        plt.savefig("mS_m_H.png", dpi=600)
+        plt.savefig("mS_m_H.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -493,7 +493,7 @@ class Visualization():
         plt.ylabel(r'$m_A$, [GeV]')
         plt.grid(True)
         plt.scatter(mChi_accumulated, mA_accumulated, marker = '+')
-        plt.savefig("mA_m_chi.png", dpi=600)
+        plt.savefig("mA_m_chi.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -503,7 +503,7 @@ class Visualization():
         plt.ylabel(r'$m_{\varsigma}$, [GeV]')
         plt.grid(True)
         plt.scatter(mChi_accumulated, mS_accumulated, marker = '+')
-        plt.savefig("mS_m_chi.png", dpi=600)
+        plt.savefig("mS_m_chi.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -513,7 +513,7 @@ class Visualization():
         plt.ylabel(r'$m_{H^{\pm}}$, [GeV]')
         plt.grid(True)
         plt.scatter(mH_accumulated, mHPlus_accumulated, marker = '+')
-        plt.savefig("mHPlus_m_H.png", dpi=600)
+        plt.savefig("mHPlus_m_H.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -523,7 +523,7 @@ class Visualization():
         plt.ylabel(r'$m_{H^{\pm}}$, [GeV]')
         plt.grid(True)
         plt.scatter(mA_accumulated, mHPlus_accumulated, marker = '+')
-        plt.savefig("mHPlus_m_A.png", dpi=600)
+        plt.savefig("mHPlus_m_A.png", dpi=600, bbox_inches="tight")
         plt.show()
         
         plt.clf()
@@ -562,7 +562,7 @@ class Visualization():
         ax.scatter(np.arange(num), u_spheno, c = 'green', label = 'U', marker = '1')
         ax.legend()
         ax.grid(True)
-        plt.savefig("stuplot.png", dpi = 600)
+        plt.savefig("stuplot.png", dpi = 600, bbox_inches="tight")
         #plt.show()
         
         differences_t = t_prespheno - t_spheno
@@ -579,7 +579,7 @@ class Visualization():
         ax2.scatter(np.arange(num), differences_u, c = 'green', label = 'U', marker = '1')
         ax2.legend()
         ax2.grid(True)
-        plt.savefig("differences_stu.png", dpi = 600)
+        plt.savefig("differences_stu.png", dpi = 600, bbox_inches="tight")
         #plt.show()
         
         errors_t = []
@@ -598,7 +598,7 @@ class Visualization():
         ax3.errorbar(np.arange(num), t_prespheno, yerr = errors_t, c = 'red', label = 'T', marker = '+', linestyle = 'None')
         ax3.legend()
         ax3.grid(True)
-        plt.savefig("differences_errorsbars_t.png", dpi = 600)
+        plt.savefig("differences_errorsbars_t.png", dpi = 600, bbox_inches="tight")
         #plt.show()
         
         errors_s = []
@@ -617,7 +617,7 @@ class Visualization():
         ax4.errorbar(np.arange(num), s_prespheno, yerr = errors_s, c = 'blue', label = 'T', marker = '+', linestyle = 'None')
         ax4.legend()
         ax4.grid(True)
-        plt.savefig("differences_errorsbars_s.png", dpi = 600)
+        plt.savefig("differences_errorsbars_s.png", dpi = 600, bbox_inches="tight")
         #plt.show()
         
         errors_u = []
@@ -636,5 +636,5 @@ class Visualization():
         ax5.errorbar(np.arange(num), u_prespheno, yerr = errors_u, c = 'green', label = 'T', marker = '+', linestyle = 'None')
         ax5.legend()
         ax5.grid(True)
-        plt.savefig("differences_errorsbars_u.png", dpi = 600)
+        plt.savefig("differences_errorsbars_u.png", dpi = 600, bbox_inches="tight")
         #plt.show()
