@@ -1,0 +1,29 @@
+# Configuration file for BGLNCSexplorer.
+
+Block Control
+1 100			# number of points to sample
+2 True			# Cluster run or not
+3 True			# Only save data of points that pass all checks
+Block Software Versions
+1 BGLNCS_stripped	# SARAH model to be used
+2 4.0.4			# SPheno version
+3 5.3.2beta		# HiggsBounds version
+4 2.2.3beta		# HiggsSignals version
+Block Mass Ranges	# all masses in GeV
+1 80 500		# hh2 mass
+2 80 500		# hh3 mass
+3 80 500		# ah mass
+4 80 500		# pgs mass
+5 80 500		# chh mass
+Block Angles and Vev:s	# WARNING: all angle values get multiplied by pi!
+1 100 500		# scalar singlet vev
+2 0 0.5			# beta angle
+3 0 2.0			# a1 angle
+4 0 2.0			# gamma_1 angle
+Block Off-alignment Parameters
+1 -0.2 0.2		# delta_2
+2 -0.2 0.2		# delta_3
+Block PGS input		# data from the Particle Data Group
+1 -0.09 0.15		# bounds on T
+2 -0.11 0.09		# bounds on S
+3 -0.09 0.13		# bounds on U
