@@ -40,7 +40,7 @@ electroweak_precision_observables.ElectroweakPrecisionObservables):
         # initiate the modules used for calculations and file writing:
         electroweak_precision_observables.ElectroweakPrecisionObservables.__init__(self)
         inversion_procedure.InversionProcedure.__init__(self)
-        file_writing.FileWriting.__init__(self, self.sarah_model_version, self.Running_Env)
+        file_writing.FileWriting.__init__(self)
         
     def makeNewPointFolder(self, counter, thisRunDir):
         # This point's new directory, named with integer, saves all output
@@ -207,7 +207,8 @@ electroweak_precision_observables.ElectroweakPrecisionObservables):
                                                                                                  num_v_2, num_v_3)
         
                                 # Create the SPheno input file:
-                                self.write_spheno_LesHouches(num_Lambda1, num_Lambda2, num_Lambda3, num_Lambda4, 
+                                self.write_spheno_LesHouches(self.sarah_model_version, self.Running_Env, 
+                                                        num_Lambda1, num_Lambda2, num_Lambda3, num_Lambda4, 
                                                         num_Lambda1Dash, num_Lambda2Dash, num_Lambda3Dash,
                                                         num_Mu3, num_Mub, num_Aa1,
                                                         num_v_3, Y1d11, Y1d12, Y1d13, Y1d21, Y1d22, Y1d23, Y2d31,
@@ -221,7 +222,8 @@ electroweak_precision_observables.ElectroweakPrecisionObservables):
                                 os.system(Spheno_BGL_Running_command)
         
                                 # Save masses to compare to SPheno output:
-                                self.saveParamsForComparison(m_hh1, m_hh2, m_hh3, m_chh, m_ah, m_pgs, vlu, vru, vld, vrd,
+                                self.saveParamsForComparison(self.sarah_model_version, self.Running_Env, 
+                                                             m_hh1, m_hh2, m_hh3, m_chh, m_ah, m_pgs, vlu, vru, vld, vrd,
                                                              vll, vrl, matrixScal, matrixPs, matrixChS, t, s, u)
         
                                 # create the HiggsBounds output

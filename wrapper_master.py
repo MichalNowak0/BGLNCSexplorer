@@ -9,72 +9,41 @@ import os
 import numpy as np
 import datetime as dt
 
+import file_writing
 import wrapper_loop
 import data_handling
 
 #-----------------------------------------------------------------------------------------
 # This script controls the simulations that are executed by the wrapper_loop.py script. 
-# Here, the simulation parameters are set (masses, angles etc.) and the data is managed
+# Here, the simulation parameters are read in from the config file (masses, angles etc.) 
+# and the data is managed
 #-----------------------------------------------------------------------------------------
 
-# These cells set up the metaparameters of the run:
+#The path where all the programs are
+Working_Folder = os.getcwd()
+#print(Working_Folder)
 
-# local or cluster execution:
-cluster_run = True
-# number of runs to make:
-runNum = 3
-# number of parameter-points to generate per run:
-maxRunNum = 50
-# IMPORTANT: the total number of parameter-points will be runNum*maxRunNUm
+# Check if the config file that specifies model parameters exists:
+if os.path.exists('config_file'):
+    # Read in from the configuration file:
+    config_inst = file_writing.FileWriting()
+    
+    maxRunNum, cluster_run, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
+    m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
+    delta_2_sRange, delta_3_sRange, t_range, s_range, u_range = config_inst.configure_from_file(os.path.join(Working_Folder, 'config_file'))
+    
+    print(maxRunNum, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
+    m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
+    delta_2_sRange, delta_3_sRange, t_range, s_range, u_range)
 
-# Versions of the diffrent programs:
-sarah_model_version = 'BGLNCS_stripped'
-spheno_version = '4.0.4'
-higgs_bounds_version = '5.3.2beta'
-higgs_signals_version = '2.2.3beta'
-
-# Sampling ranges of all the sampled parameters:
-# The vev of the scalar singlet:
-v_3_sRange = [100, 500]
-
-# Higgs vev mixing angle:
-beta_sRange = [0, np.pi/2]
-
-# The free CP-even mass-matrix mixing angle
-a1_sRange= [0, 2*np.pi]
-
-# The free CP-odd sector mass-matrix mixing angle
-gamma1_sRange = [0, 2*np.pi]
-
-# Off Higgs-alignment parameters (both equal to zero if Higgs-alignment):
-delta_2_sRange = [-0.2, 0.2]
-delta_3_sRange = [-0.2, 0.2]
-
-# Masses of all scalars except the detected 125.09 GeV one (hh1):
-# CP-even:
-m_hh2_sRange = [80, 500]
-m_hh3_sRange = [80, 500]
-# CP-odd:
-m_ah_sRange = [80, 500]
-# Pseudo-Goldstone:
-m_pgs_sRange = [80, 500]
-# Charged:
-m_chh_sRange = [80, 500]
-
-# PDG input:
-t_range = [- 0.09, 0.15]
-s_range = [- 0.11, 0.09]
-u_range = [- 0.09, 0.13]
-
+else:
+    raise Exception("Required config file not found!")
+    
 #------------------------------------------------------------------------------------------
 # Here the paths to the various requesite programs are set and the file structure is constructed,
 # if it does not already exist. Make sure to control the paths before starting your simulations!
 #------------------------------------------------------------------------------------------
 
-#The path where all the programs are
-Working_Folder = os.getcwd()
-#print(Working_Folder)
-    
 if cluster_run:
     #Spheno folder
     SPheno_Path = os.path.join(os.path.dirname(Working_Folder), 'SPheno-{}'.format(spheno_version))
@@ -149,25 +118,8 @@ thisRunDir = makeNewRunFolder(now)
 instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
                 m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
 
-# Commenting this away saves more data, but can easily overflow the available disc space in a real 
-# data-production run. It is recommended to only comment this for debugging purposes.
-instDataHandler.dataBunching(thisRunDir)
-    
-#---------------------------------------------------------------------------------------------
-
-"""
-for i in range(runNum):
-    
-    # Make a new folder for this run. Named with timestamp:
-    now = dt.datetime.now()
-    thisRunDir = makeNewRunFolder(now)
-
-    instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
-                    m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
-    
-    # Commenting this away saves more data, but can easily overflow the available disc space in a real 
-    # data-production run. It is recommended to only comment this for debugging purposes.
+# If true, runs the method that discards all data except for the points that passed all contraints.
+if toss_data:
     instDataHandler.dataBunching(thisRunDir)
     
 #---------------------------------------------------------------------------------------------
-"""

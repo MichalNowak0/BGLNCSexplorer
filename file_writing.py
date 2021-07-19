@@ -10,19 +10,240 @@ import sys
 import numpy as np
 
 class FileWriting():
-    def __init__(self, sarah_model_version, Running_Env):
-        self.sarah_model_version = sarah_model_version
-        self.Running_Env = Running_Env
+    def __init__(self):
+        pass
+        
+    def configure_from_file(self, path):
+        
+        readControl = False
+        blockControlCounter = 1
+        
+        readVersion = False
+        blockVersionCounter = 1
+        
+        readMasses = False
+        blockMassesCounter = 1
+        
+        readAngles = False
+        blockAnglesCounter = 1
+        
+        readOffAlignment = False
+        blockOffCounter = 1
+        
+        readPGSIn = False
+        blockPGSCounter = 1
+        
+        maxRunNum = 0
+        cluster_run = False
+        toss_data = True
+        sarah_model_version = ''
+        spheno_version = ''
+        higgs_bounds_version = ''
+        higgs_signals_version = ''
+        v_3_sRange = [0., 0.]
+        beta_sRange = [0., 0.]
+        a1_sRange= [0., 0.]
+        gamma1_sRange = [0., 0.]
+        delta_2_sRange = [0., 0.]
+        delta_3_sRange = [0., 0.]
+        m_hh2_sRange = [0., 0.]
+        m_hh3_sRange = [0., 0.]
+        m_ah_sRange = [0., 0.]
+        m_pgs_sRange = [0., 0.]
+        m_chh_sRange = [0., 0.]
+        t_range = [0., 0.]
+        s_range = [0., 0.]
+        u_range = [0., 0.]
+        
+        with open(path, 'r') as r:
+            for line in r.readlines():
+                
+                # Controls the Block readings:
+                if line.startswith('Block Control'):
+                    readControl = True
+                    continue
+                    
+                elif line.startswith('Block Soft'):
+                    readControl = False
+                    readVersion = True
+                    continue
+                
+                elif line.startswith('Block Mass'):
+                    readControl = False
+                    readVersion = False
+                    readMasses = True
+                    continue
+                
+                elif line.startswith('Block Angles'):
+                    readControl = False
+                    readVersion = False
+                    readMasses = False
+                    readAngles = True
+                    continue
+                    
+                elif line.startswith('Block Off'):
+                    readControl = False
+                    readVersion = False
+                    readMasses = False
+                    readAngles = False
+                    readOffAlignment = True
+                    continue
+                    
+                elif line.startswith('Block PGS'):
+                    readControl = False
+                    readVersion = False
+                    readMasses = False
+                    readAngles = False
+                    readOffAlignment = False
+                    readPGSIn = True
+                    continue
+                    
+                # Reads the proper blocks:
+                if readControl:
+                    if blockControlCounter == 1:
+                        maxRunNum = int(line.split()[1])
+                        blockControlCounter += 1
+                        continue
+                    
+                    elif blockControlCounter == 2:
+                        if line.split()[1] == 'True':
+                            cluster_run = True
+                        else:
+                            cluster_run = False
+                        blockControlCounter += 1
+                        continue
+                    
+                    elif blockControlCounter == 3:
+                        if line.split()[1] == 'True':
+                            toss_data = True
+                        else:
+                            toss_data = False
+                        blockControlCounter += 1
+                        continue
+                    
+                if readVersion:
+                    if blockVersionCounter == 1:
+                        sarah_model_version = line.split()[1]
+                        blockVersionCounter += 1
+                        continue
+                        
+                    elif blockVersionCounter == 2:
+                        spheno_version = line.split()[1]
+                        blockVersionCounter += 1
+                        continue
+                    
+                    elif blockVersionCounter == 3:
+                        higgs_bounds_version = line.split()[1]
+                        blockVersionCounter += 1
+                        continue
+                    
+                    elif blockVersionCounter == 4:
+                        higgs_signals_version = line.split()[1]
+                        blockVersionCounter += 1
+                        continue
+                    
+                if readMasses:
+                    if blockMassesCounter == 1:
+                        m_hh2_sRange[0] = float(line.split()[1])
+                        m_hh2_sRange[1] = float(line.split()[2])
+                        blockMassesCounter += 1
+                        continue
+                        
+                    elif blockMassesCounter == 2:
+                        m_hh3_sRange[0] = float(line.split()[1])
+                        m_hh3_sRange[1] = float(line.split()[2])
+                        blockMassesCounter += 1
+                        continue
+                    
+                    elif blockMassesCounter == 3:
+                        m_ah_sRange[0] = float(line.split()[1])
+                        m_ah_sRange[1] = float(line.split()[2])
+                        blockMassesCounter += 1
+                        continue
+                    
+                    elif blockMassesCounter == 4:
+                        m_pgs_sRange[0] = float(line.split()[1])
+                        m_pgs_sRange[1] = float(line.split()[2])
+                        blockMassesCounter += 1
+                        continue
+                    
+                    elif blockMassesCounter == 5:
+                        m_chh_sRange[0] = float(line.split()[1])
+                        m_chh_sRange[1] = float(line.split()[2])
+                        blockMassesCounter += 1
+                        continue
+                    
+                if readAngles:
+                    if blockAnglesCounter == 1:
+                        v_3_sRange[0] = float(line.split()[1])
+                        v_3_sRange[1] = float(line.split()[2])
+                        blockAnglesCounter += 1
+                        continue
+                        
+                    elif blockAnglesCounter == 2:
+                        beta_sRange[0] = np.pi*float(line.split()[1])
+                        beta_sRange[1] = np.pi*float(line.split()[2])
+                        blockAnglesCounter += 1
+                        continue
+                    
+                    elif blockAnglesCounter == 3:
+                        a1_sRange[0] = np.pi*float(line.split()[1])
+                        a1_sRange[1] = np.pi*float(line.split()[2])
+                        blockAnglesCounter += 1
+                        continue
+                    
+                    elif blockAnglesCounter == 4:
+                        gamma1_sRange[0] = np.pi*float(line.split()[1])
+                        gamma1_sRange[1] = np.pi*float(line.split()[2])
+                        blockAnglesCounter += 1
+                        continue
+                    
+                if readOffAlignment:
+                    if blockOffCounter == 1:
+                        delta_2_sRange[0] = float(line.split()[1])
+                        delta_2_sRange[1] = float(line.split()[2])
+                        blockOffCounter += 1
+                        continue
+                        
+                    elif blockOffCounter == 2:
+                        delta_3_sRange[0] = float(line.split()[1])
+                        delta_3_sRange[1] = float(line.split()[2])
+                        blockOffCounter += 1
+                        continue
+                    
+                if readPGSIn:
+                    if blockPGSCounter == 1:
+                        t_range[0] = float(line.split()[1])
+                        t_range[1] = float(line.split()[2])
+                        blockPGSCounter += 1
+                        continue
+                        
+                    elif blockPGSCounter == 2:
+                        s_range[0] = float(line.split()[1])
+                        s_range[1] = float(line.split()[2])
+                        blockPGSCounter += 1
+                        continue
+                    
+                    elif blockPGSCounter == 3:
+                        u_range[0] = float(line.split()[1])
+                        u_range[1] = float(line.split()[2])
+                        blockPGSCounter += 1
+                        continue
+                    
+        return maxRunNum, cluster_run, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
+        m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
+        delta_2_sRange, delta_3_sRange, t_range, s_range, u_range
     
-    def write_spheno_LesHouches(self, num_Lambda1, num_Lambda2, num_Lambda3, num_Lambda4, num_Lambda1Dash, num_Lambda2Dash,
+    def write_spheno_LesHouches(self, sarah_model_version, Running_Env, num_Lambda1, num_Lambda2, num_Lambda3, num_Lambda4,
+                            num_Lambda1Dash, num_Lambda2Dash,
                             num_Lambda3Dash, num_Mu3, num_Mub, num_Aa1,
                             num_v_3, Y1d11, Y1d12, Y1d13, Y1d21, Y1d22, Y1d23, Y2d31, Y2d32, Y2d33, Y1u11, Y1u12, Y1u21,
                             Y1u22, Y2u33, Y1e11, Y1e12, Y1e21, Y1e22, Y2e33, Y1n11, Y1n12, Y1n21, Y1n22, Y2n33, 
                             B11, B12, B21, B22, C13, C23, C31, C32, num_v_1, num_v_2, num_Beta):
         # this function writes the appropiate SLHA input file for SPheno.
         # select the file depending on model version:
-        if self.sarah_model_version == 'BGLNCS':
-             with open(os.path.join(self.Running_Env,'spheno','LesHouches.in.{}'.format(self.sarah_model_version)),'w') as f:
+        if sarah_model_version == 'BGLNCS':
+             with open(os.path.join(Running_Env,'spheno','LesHouches.in.{}'.format(sarah_model_version)),'w') as f:
                 f.write("""Block MODSEL      #
  1 0               #  1/0: High/low scale input
  2 1               # Boundary Condition
@@ -172,8 +393,8 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
 4    0     # Calc 3-Body decays of Fv
                  """)
         
-        elif self.sarah_model_version == 'BGLNCS_stripped':
-            with open(os.path.join(self.Running_Env,'spheno','LesHouches.in.{}'.format(self.sarah_model_version)),'w') as f:
+        elif sarah_model_version == 'BGLNCS_stripped':
+            with open(os.path.join(Running_Env,'spheno','LesHouches.in.{}'.format(sarah_model_version)),'w') as f:
                 f.write("""Block MODSEL      #
  1 0               #  1/0: High/low scale input
  2 1               # Boundary Condition
@@ -394,16 +615,17 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
         else:
             raise Exception("Unsupported model version!")
         
-    def saveParamsForComparison(self, m_hh1, m_hh2, m_hh3, m_chh, m_ah, m_pgs, vlu, vru, vld, vrd, vll, vrl, Oscalars, OpseudoS, Ocharged,
+    def saveParamsForComparison(self, sarah_model_version, Running_Env, m_hh1, m_hh2, m_hh3, m_chh, m_ah, m_pgs, vlu, vru, vld,
+                           vrd, vll, vrl, Oscalars, OpseudoS, Ocharged,
                            t, s, u):
         spheno_data = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
-        data_spheno = os.path.join(os.getcwd(), 'SPheno.spc.{}'.format(self.sarah_model_version))
+        data_spheno = os.path.join(os.getcwd(), 'SPheno.spc.{}'.format(sarah_model_version))
         if not os.path.exists(data_spheno):
-            raise Exception("No SPheno output!")
-            #return None
+            #raise Exception("No SPheno output!")
+            return None
         #print(data_spheno)
         else:
-            list_of_checks = [False for i in range(12)]
+            list_of_checks = [False for i in range(15)]
             with open(data_spheno, 'r') as R:
                 index = -1
                 for line in R.readlines():
