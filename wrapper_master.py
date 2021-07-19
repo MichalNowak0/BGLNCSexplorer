@@ -27,15 +27,15 @@ if os.path.exists('config_file'):
     # Read in from the configuration file:
     config_inst = file_writing.FileWriting()
     
-    maxRunNum, cluster_run, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
+    maxRunNum, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
     m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
     delta_2_sRange, delta_3_sRange, t_range, s_range, u_range = config_inst.configure_from_file(os.path.join(Working_Folder, 'config_file'))
     
-    
-    print(maxRunNum, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
+    """
+    print(maxRunNum, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
     m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
     delta_2_sRange, delta_3_sRange, t_range, s_range, u_range)
-    
+    """
 
 else:
     raise Exception("Required config file not found!")
@@ -45,31 +45,17 @@ else:
 # if it does not already exist. Make sure to control the paths before starting your simulations!
 #------------------------------------------------------------------------------------------
 
-if cluster_run:
-    #Spheno folder
-    SPheno_Path = os.path.join(os.path.dirname(Working_Folder), 'SPheno-{}'.format(spheno_version))
-    spheno_BGL = os.path.join(SPheno_Path,'bin/SPheno{}'.format(sarah_model_version))
+#Spheno folder
+SPheno_Path = os.path.join(os.path.dirname(Working_Folder), 'SPheno-{}'.format(spheno_version))
+spheno_BGL = os.path.join(SPheno_Path,'bin/SPheno{}'.format(sarah_model_version))
 
-    #HiggsBounds folder
-    HiggsBounds_Path = os.path.join(os.path.dirname(Working_Folder), 'HiggsBounds-{}'.format(higgs_bounds_version))
-    HiggsBounds = os.path.join(HiggsBounds_Path,'HiggsBounds')
+#HiggsBounds folder
+HiggsBounds_Path = os.path.join(os.path.dirname(Working_Folder), 'HiggsBounds-{}'.format(higgs_bounds_version))
+HiggsBounds = os.path.join(HiggsBounds_Path,'HiggsBounds')
 
-    #HiggsSignals folder
-    HiggsSignals_Path = os.path.join(os.path.dirname(Working_Folder), 'HiggsSignals-{}'.format(higgs_signals_version))
-    HiggsSignals = os.path.join(HiggsSignals_Path,'HiggsSignals')
-
-else:
-    #Spheno folder
-    SPheno_Path = '/home/william/m20_michal/Downloads/SPheno-{}'.format(spheno_version)
-    spheno_BGL = os.path.join(SPheno_Path,'bin/SPheno{}'.format(sarah_model_version))
-
-    #HiggsBounds folder
-    HiggsBounds_Path = '/home/william/m20_michal/Downloads/HiggsBounds-{}'.format(higgs_bounds_version)
-    HiggsBounds = os.path.join(HiggsBounds_Path,'HiggsBounds')
-
-    #HiggsSignal folder
-    HiggsSignals_Path = '/home/william/m20_michal/Downloads/HiggsSignals-{}'.format(higgs_signals_version)
-    HiggsSignals = os.path.join(HiggsSignals_Path,'HiggsSignals')
+#HiggsSignals folder
+HiggsSignals_Path = os.path.join(os.path.dirname(Working_Folder), 'HiggsSignals-{}'.format(higgs_signals_version))
+HiggsSignals = os.path.join(HiggsSignals_Path,'HiggsSignals')
 
 # Used to store temporary files that feed data between the codes e.g. the SLHA files for SPheno:
 Running_Env = os.path.join(os.path.dirname(Working_Folder), 'Running_Env')

@@ -34,7 +34,6 @@ class FileWriting():
         blockPGSCounter = 1
         
         maxRunNum = 0
-        cluster_run = False
         toss_data = True
         sarah_model_version = ''
         spheno_version = ''
@@ -106,14 +105,6 @@ class FileWriting():
                         continue
                     
                     elif blockControlCounter == 2:
-                        if line.split()[1] == 'True':
-                            cluster_run = True
-                        else:
-                            cluster_run = False
-                        blockControlCounter += 1
-                        continue
-                    
-                    elif blockControlCounter == 3:
                         if line.split()[1] == 'True':
                             toss_data = True
                         else:
@@ -230,7 +221,7 @@ class FileWriting():
                         blockPGSCounter += 1
                         continue
                     
-        return maxRunNum, cluster_run, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
+        return maxRunNum, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
         m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
         delta_2_sRange, delta_3_sRange, t_range, s_range, u_range
     

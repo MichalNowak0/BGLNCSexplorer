@@ -1,9 +1,8 @@
 # Configuration file for BGLNCSexplorer.
 
 Block Control
-1 100			# number of points to sample
-2 True			# Cluster run or not
-3 True			# Only save data of points that pass all checks
+1 10			# number of points to sample 
+2 True			# Only save data of points that pass all checks
 Block Software Versions
 1 BGLNCS_stripped	# SARAH model to be used
 2 4.0.4			# SPheno version
