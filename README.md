@@ -7,13 +7,11 @@ The repo contains three main segments. The python files constitute the actual BG
 
 What do you need to do to run the program? 
 1. Make sure the paths specified in `wrapper_master.py` and `analysis_and_plotting.py` match those of your installation.
-2. Make sure the variable `cluster_run` in `wrapper_master.py` is set to False if you are running the codes locally.
-3. Select the number of parameter-points to be sampled by changing the `maxRunNum` variable in `wrapper_master.py`. 
+2. Set the number of points to be sampled by modifying the `config_file` plain text file. Other parameters such as installed software versions and ranges over which various parameters (such as scalar masses) are to be sampled over can also be set using this file.
 
 If you want to use the bash scripts to run the program on a cluster, the following needs to be configured:
 1. Make sure the paths specified in `master.sh` and `analysis_submit.sh` match your installation.
-2. Make sure the variable `cluster_run` in `wrapper_master.py` is set to True.
-3. The bash scripts are confígured to run on a specific partition on the LUNARC AURORA cluster. To run it you need to at least input your email address in the indicated spot in the two aforementioned .sh files. You also need to potentially change the time, nodes & cores requested for the run. 
+2. The bash scripts are confígured to run on a specific partition on the LUNARC AURORA cluster. To run it you need to at least input your email address in the indicated spot in the two aforementioned .sh files. You also need to potentially change the time, nodes & cores requested for the run. 
 
 The function of the various python files and their interdependence is summarized in the table below:
 
