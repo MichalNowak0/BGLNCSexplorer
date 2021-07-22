@@ -13,8 +13,9 @@ class DataHandling():
     # on how many files one can store) and tossing way uninteresting files (some files are useless to us and in 
     # addition we don't save anything apart from preSPheno data for "failed" points).
     
-    def __init__(self):
-        pass
+    def __init__(self, toss_data, sarah_model_version):
+        self.toss_data = toss_data
+        self.sarah_model_version = sarah_model_version
     
     def preSPhenoBunching(self, path, n):
         # Bunch together the preSPheno data. All such data is saved to later train neural nets on it.
@@ -153,6 +154,35 @@ class DataHandling():
             f.write("""
 >>endW_2_{}
 >>endpoint_{}""".format(n, n))
+
+
+    def distributer(self, n, pathHB, pathHS, pathSPheno):
+        # A convenience function for distributing the file bunching
+        if os.path.exists(pathSPheno):
+            self.spectrumBunching(pathSPheno, n)
+            
+        if os.path.exists(pathHB) and os.path.exists(pathHS):
+            self.higgsBandSBunching(pathHB, pathHS, n)
+
+        pathBR_H_NP = os.path.join(self.data_folders[n], "BR_H_NP.dat")
+        pathBR_Hplus = os.path.join(self.data_folders[n], "BR_Hplus.dat")
+        pathBR_t = os.path.join(self.data_folders[n], "BR_t.dat")
+        patheffC = os.path.join(self.data_folders[n], "effC.dat")
+        pathMH_GammaTot = os.path.join(self.data_folders[n], "MH_GammaTot.dat")
+        pathMHplus_GammaTot = os.path.join(self.data_folders[n], "MHplus_GammaTot.dat")
+        
+        if os.path.exists(pathBR_H_NP) and os.path.exists(pathBR_Hplus) and os.path.exists(pathBR_t) and \
+            os.path.exists(patheffC) and os.path.exists(pathMH_GammaTot) and os.path.exists(pathMHplus_GammaTot):
+            self.miscDataBunching(pathBR_H_NP, pathBR_Hplus, pathBR_t, patheffC, pathMH_GammaTot, pathMHplus_GammaTot, n)
+            
+        if os.path.exists(os.path.join(self.data_folders[n], "masses")):
+            self.comparisonDataBunching(os.path.join(self.data_folders[n], "masses"), n)
+
+        pathWC_1 = os.path.join(self.data_folders[n], 'WC.BGLNCS_1.json')
+        pathWC_2 = os.path.join(self.data_folders[n], 'WC.BGLNCS_2.json')
+        
+        if os.path.exists(pathWC_1) and os.path.exists(pathWC_2):
+            self.wilsonDataBunching(pathWC_1, pathWC_2, n)
                 
     
     def dataBunching(self, thisRunDir):
@@ -162,55 +192,37 @@ class DataHandling():
         os.chdir(thisRunDir)
         
         # Finds all the subdirectories (one for each parameter point) in the current run's folder:
-        data_folders = [f.path for f in os.scandir(thisRunDir) if f.is_dir()]
-        num_of_data_folders = len(data_folders)
+        self.data_folders = [f.path for f in os.scandir(thisRunDir) if f.is_dir()]
+        num_of_data_folders = len(self.data_folders)
         
         for n in range(num_of_data_folders):
             
-            preSPhenoPath = os.path.join(data_folders[n], "preSPhenoParameters")
-            pathHB = os.path.join(data_folders[n], "HiggsBounds_results.dat")
-            pathHS = os.path.join(data_folders[n], "HiggsSignals_results.dat")
-            pathSPheno = os.path.join(data_folders[n], "SPheno.spc.BGLNCS")
+            preSPhenoPath = os.path.join(self.data_folders[n], "preSPhenoParameters")
+            pathHB = os.path.join(self.data_folders[n], "HiggsBounds_results.dat")
+            pathHS = os.path.join(self.data_folders[n], "HiggsSignals_results.dat")
+            pathSPheno = os.path.join(self.data_folders[n], "SPheno.spc.{}".format(self.sarah_model_version))
+            print(pathSPheno)
             
             if os.path.exists(preSPhenoPath):
                 self.preSPhenoBunching(preSPhenoPath, n)
                 
-            # save the rest of the data if the point passed HB & HS:
-            if os.path.exists(pathHB) and os.path.exists(pathHS):
-                    
-                    if self.check_if_point_passes(pathHB, pathHS):
+            # If only the points that pass HB & HS are to be saved
+            if self.toss_data:
+                # save the rest of the data if the point passed HB & HS:
+                if os.path.exists(pathHB) and os.path.exists(pathHS):
                         
-                        if os.path.exists(pathSPheno):
-                            self.spectrumBunching(pathSPheno, n)
+                        if self.check_if_point_passes(pathHB, pathHS):
                             
-                        if os.path.exists(pathHB) and os.path.exists(pathHS):
-                            self.higgsBandSBunching(pathHB, pathHS, n)
+                            self.distributer(n, pathHB, pathHS, pathSPheno)
             
-                        pathBR_H_NP = os.path.join(data_folders[n], "BR_H_NP.dat")
-                        pathBR_Hplus = os.path.join(data_folders[n], "BR_Hplus.dat")
-                        pathBR_t = os.path.join(data_folders[n], "BR_t.dat")
-                        patheffC = os.path.join(data_folders[n], "effC.dat")
-                        pathMH_GammaTot = os.path.join(data_folders[n], "MH_GammaTot.dat")
-                        pathMHplus_GammaTot = os.path.join(data_folders[n], "MHplus_GammaTot.dat")
-                        
-                        if os.path.exists(pathBR_H_NP) and os.path.exists(pathBR_Hplus) and os.path.exists(pathBR_t) and \
-                            os.path.exists(patheffC) and os.path.exists(pathMH_GammaTot) and os.path.exists(pathMHplus_GammaTot):
-                            self.miscDataBunching(pathBR_H_NP, pathBR_Hplus, pathBR_t, patheffC, pathMH_GammaTot, pathMHplus_GammaTot, n)
-                            
-                        if os.path.exists(os.path.join(data_folders[n], "masses")):
-                            self.comparisonDataBunching(os.path.join(data_folders[n], "masses"), n)
-                
-                        pathWC_1 = os.path.join(data_folders[n], 'WC.BGLNCS_1.json')
-                        pathWC_2 = os.path.join(data_folders[n], 'WC.BGLNCS_2.json')
-                        
-                        if os.path.exists(pathWC_1) and os.path.exists(pathWC_2):
-                            self.wilsonDataBunching(pathWC_1, pathWC_2, n)
-            
+            # If ALL points are to be saved can (easily save HUGE amounts of data!):
+            else:
+                self.distributer(n, pathHB, pathHS, pathSPheno)
             
             # delete unnecessary files    
-            for file in os.listdir(data_folders[n]):
-                os.remove(os.path.join(data_folders[n], file))
+            for file in os.listdir(self.data_folders[n]):
+                os.remove(os.path.join(self.data_folders[n], file))
             
-            os.rmdir(data_folders[n])
+            os.rmdir(self.data_folders[n])
             #print("end", n)
             

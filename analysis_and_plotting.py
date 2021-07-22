@@ -5,14 +5,12 @@ Created on Fri Jun 11 01:10:18 2021
 @author: Michal
 """
 
-
 import numpy as np
 import os
 import sys
 import datetime as dt
 import flavio as fl
 from wilson import Wilson as wn
-#from matplotlib import rc
 
 import visualization
 
@@ -272,22 +270,8 @@ class Analysis_And_Plotting(visualization.Visualization):
             
         
         return BXsgammaRatio, BRB0eeNPRatio, BRKPLuspinunuRatio, BXB0mumuRatio
-    """
-    def loop_over_dirs(self, i):
-        
-        # counter: total number of generated parameter points:
-        c_t_p_p = 0
-        # counter: total number of points that went all the way to SPheno (passed copositivity & unitarity):
-        c_t_s_p = 0
-        # counter: points that generated SPheno output:
-        c_p_g_s = 0
-        # counter: points that passed HiggsBounds:
-        c_p_p_hb = 0
-        # counter: points that passed HiggsSignals:
-        c_p_p_hs = 0
-        # counter: good points (passed everything):
-        c_g_p = 0
-        
+    
+    def reap_one_run(self, i):
         # set up the paths to the output files:
         path_to_spectrum_data = os.path.join(i, 'spectrumAccumulated')
         path_to_preSPheno_data = os.path.join(i, 'preSPhenoAccumulated')
@@ -300,200 +284,98 @@ class Analysis_And_Plotting(visualization.Visualization):
             os.path.exists(path_to_preSPheno_data) and os.path.exists(path_to_wilson_data):
         
             hbs_data, passed_HBS_numbers, c_p_p_hb_tmp, c_p_p_hs_tmp, c_g_p_tmp = self.read_data_HBS(path_to_HB_HS_data)
-            c_p_p_hb += c_p_p_hb_tmp
-            c_p_p_hs += c_p_p_hs_tmp
-            c_g_p += c_g_p_tmp
+            self.c_p_p_hb += c_p_p_hb_tmp
+            self.c_p_p_hs += c_p_p_hs_tmp
+            self.c_g_p += c_g_p_tmp
             # saves the stu data from this run, later appended to stu_accumulated:
             data = []
             
             stu_from_SPheno, c_p_g_s_tmp, point_numbers = self.read_data_SPheno(path_to_spectrum_data, passed_HBS_numbers)
-            c_p_g_s += c_p_g_s_tmp
+            self.c_p_g_s += c_p_g_s_tmp
             
             data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, point_numbers, passed_HBS_numbers)
-            c_t_p_p += c_t_p_p_tmp
+            self.c_t_p_p += c_t_p_p_tmp
             
             BXsgammaRatio, BRB0eeNPRatio, BRKPLuspinunuRatio, BXB0mumuRatio = self.read_data_wilson(path_to_wilson_data, passed_HBS_numbers)
         
             for i in range(len(stu_from_SPheno)):
                 data.append(stu_from_SPheno[i] + [data_from_preSPheno[i][0], data_from_preSPheno[i][1], data_from_preSPheno[i][2]])
-                beta_accumulated.append(data_from_preSPheno[i][6])
-                hbs_accumulated.append(hbs_data[i])
-                delta2_accumulated.append(data_from_preSPheno[i][10])
-                delta3_accumulated.append(data_from_preSPheno[i][11])
-                v1_accumulated.append(data_from_preSPheno[i][3])
-                v2_accumulated.append(data_from_preSPheno[i][4])
-                mH_accumulated.append(data_from_preSPheno[i][14])
-                mS_accumulated.append(data_from_preSPheno[i][15])
-                mA_accumulated.append(data_from_preSPheno[i][16])
-                mChi_accumulated.append(data_from_preSPheno[i][17])
-                mHPlus_accumulated.append(data_from_preSPheno[i][18])
-                brB_to_Xsgamma.append(BXsgammaRatio[i])
-                BRB0eeNP_Ratio.append(BRB0eeNPRatio[i])
-                BRKPLuspinunu_Ratio.append(BRKPLuspinunuRatio[i])
-                BXB0mumu_Ratio.append(BXB0mumuRatio[i])
+                self.beta_accumulated.append(data_from_preSPheno[i][6])
+                self.hbs_accumulated.append(hbs_data[i])
+                self.delta2_accumulated.append(data_from_preSPheno[i][10])
+                self.delta3_accumulated.append(data_from_preSPheno[i][11])
+                self.v1_accumulated.append(data_from_preSPheno[i][3])
+                self.v2_accumulated.append(data_from_preSPheno[i][4])
+                self.mH_accumulated.append(data_from_preSPheno[i][14])
+                self.mS_accumulated.append(data_from_preSPheno[i][15])
+                self.mA_accumulated.append(data_from_preSPheno[i][16])
+                self.mChi_accumulated.append(data_from_preSPheno[i][17])
+                self.mHPlus_accumulated.append(data_from_preSPheno[i][18])
+                self.brB_to_Xsgamma.append(BXsgammaRatio[i])
+                self.BRB0eeNP_Ratio.append(BRB0eeNPRatio[i])
+                self.BRKPLuspinunu_Ratio.append(BRKPLuspinunuRatio[i])
+                self.BXB0mumu_Ratio.append(BXB0mumuRatio[i])
                 #print(stu_from_SPheno + stu_from_preSPheno)
         
             #print(data)
-            stu_accumulated.append(data)
+            self.stu_accumulated.append(data)
             
         elif os.path.exists(path_to_preSPheno_data):
             data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, -1, [])
-            c_t_p_p += c_t_p_p_tmp
-"""
-    def data_harvester(self, list_of_runs_to_harvest, Result_data, cluster_or_not):
-        # save the harvested data from the different runs in this list:
-        stu_accumulated = []
-        beta_accumulated = []
-        delta2_accumulated = []
-        delta3_accumulated = []
-        v1_accumulated = []
-        v2_accumulated = []
-        hbs_accumulated = []
-        mH_accumulated= []
-        mS_accumulated= []
-        mA_accumulated= []
-        mChi_accumulated= []
-        mHPlus_accumulated= []
-        brB_to_Xsgamma = []
-        BRB0eeNP_Ratio = []
-        BRKPLuspinunu_Ratio = []
-        BXB0mumu_Ratio = []
+            self.c_t_p_p += c_t_p_p_tmp
+    
+    def data_harvester(self, list_of_runs_to_harvest, Result_data):
+        # save the harvested data from the different runs in these lists:
+        self.stu_accumulated = []
+        self.beta_accumulated = []
+        self.delta2_accumulated = []
+        self.delta3_accumulated = []
+        self.v1_accumulated = []
+        self.v2_accumulated = []
+        self.hbs_accumulated = []
+        self.mH_accumulated= []
+        self.mS_accumulated= []
+        self.mA_accumulated= []
+        self.mChi_accumulated= []
+        self.mHPlus_accumulated= []
+        self.brB_to_Xsgamma = []
+        self.BRB0eeNP_Ratio = []
+        self.BRKPLuspinunu_Ratio = []
+        self.BXB0mumu_Ratio = []
         
         # counter: total number of generated parameter points:
-        c_t_p_p = 0
+        self.c_t_p_p = 0
         # counter: total number of points that went all the way to SPheno (passed copositivity & unitarity):
-        c_t_s_p = 0
+        self.c_t_s_p = 0
         # counter: points that generated SPheno output:
-        c_p_g_s = 0
+        self.c_p_g_s = 0
         # counter: points that passed HiggsBounds:
-        c_p_p_hb = 0
+        self.self.c_p_p_hb = 0
         # counter: points that passed HiggsSignals:
-        c_p_p_hs = 0
+        self.c_p_p_hs = 0
         # counter: good points (passed everything):
-        c_g_p = 0
+        self.c_g_p = 0
         
         # Loop over the runs to harvest:
-        if cluster_or_not:
-            for j in list_of_runs_to_harvest:
+        for j in list_of_runs_to_harvest:
+            
+            check_preSPheno_path = os.path.join(j, 'preSPhenoAccumulated')
+            if os.path.exists(check_preSPheno_path):
+                self.reap_one_run(j)
+                
+            else:
                 inner_list = [f.path for f in os.scandir(j) if f.is_dir()]
                 for i in inner_list:
-                    
-                    # set up the paths to the output files:
-                    path_to_spectrum_data = os.path.join(i, 'spectrumAccumulated')
-                    path_to_preSPheno_data = os.path.join(i, 'preSPhenoAccumulated')
-                    path_to_HB_HS_data = os.path.join(i, 'higgsSBAccumulated')
-                    path_to_comparison_data = os.path.join(i, 'comparisonDataAccumulated')
-                    path_to_wilson_data = os.path.join(i, 'wilsonDataAccumulated')
-                    
-                    
-                    if os.path.exists(path_to_HB_HS_data) and os.path.exists(path_to_spectrum_data) and \
-                        os.path.exists(path_to_preSPheno_data) and os.path.exists(path_to_wilson_data):
-                    
-                        hbs_data, passed_HBS_numbers, c_p_p_hb_tmp, c_p_p_hs_tmp, c_g_p_tmp = self.read_data_HBS(path_to_HB_HS_data)
-                        c_p_p_hb += c_p_p_hb_tmp
-                        c_p_p_hs += c_p_p_hs_tmp
-                        c_g_p += c_g_p_tmp
-                        # saves the stu data from this run, later appended to stu_accumulated:
-                        data = []
-                        
-                        stu_from_SPheno, c_p_g_s_tmp, point_numbers = self.read_data_SPheno(path_to_spectrum_data, passed_HBS_numbers)
-                        c_p_g_s += c_p_g_s_tmp
-                        
-                        data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, point_numbers, passed_HBS_numbers)
-                        c_t_p_p += c_t_p_p_tmp
-                        
-                        BXsgammaRatio, BRB0eeNPRatio, BRKPLuspinunuRatio, BXB0mumuRatio = self.read_data_wilson(path_to_wilson_data, passed_HBS_numbers)
-                    
-                        for i in range(len(stu_from_SPheno)):
-                            data.append(stu_from_SPheno[i] + [data_from_preSPheno[i][0], data_from_preSPheno[i][1], data_from_preSPheno[i][2]])
-                            beta_accumulated.append(data_from_preSPheno[i][6])
-                            hbs_accumulated.append(hbs_data[i])
-                            delta2_accumulated.append(data_from_preSPheno[i][10])
-                            delta3_accumulated.append(data_from_preSPheno[i][11])
-                            v1_accumulated.append(data_from_preSPheno[i][3])
-                            v2_accumulated.append(data_from_preSPheno[i][4])
-                            mH_accumulated.append(data_from_preSPheno[i][14])
-                            mS_accumulated.append(data_from_preSPheno[i][15])
-                            mA_accumulated.append(data_from_preSPheno[i][16])
-                            mChi_accumulated.append(data_from_preSPheno[i][17])
-                            mHPlus_accumulated.append(data_from_preSPheno[i][18])
-                            brB_to_Xsgamma.append(BXsgammaRatio[i])
-                            BRB0eeNP_Ratio.append(BRB0eeNPRatio[i])
-                            BRKPLuspinunu_Ratio.append(BRKPLuspinunuRatio[i])
-                            BXB0mumu_Ratio.append(BXB0mumuRatio[i])
-                            #print(stu_from_SPheno + stu_from_preSPheno)
-                    
-                        #print(data)
-                        stu_accumulated.append(data)
-                        
-                    elif os.path.exists(path_to_preSPheno_data):
-                        data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, -1, [])
-                        c_t_p_p += c_t_p_p_tmp
-                        
-        else:
-            for i in list_of_runs_to_harvest:
-                    
-                # set up the paths to the output files:
-                path_to_spectrum_data = os.path.join(i, 'spectrumAccumulated')
-                path_to_preSPheno_data = os.path.join(i, 'preSPhenoAccumulated')
-                path_to_HB_HS_data = os.path.join(i, 'higgsSBAccumulated')
-                path_to_comparison_data = os.path.join(i, 'comparisonDataAccumulated')
-                path_to_wilson_data = os.path.join(i, 'wilsonDataAccumulated')
-                
-                
-                if os.path.exists(path_to_HB_HS_data) and os.path.exists(path_to_spectrum_data) and \
-                    os.path.exists(path_to_preSPheno_data) and os.path.exists(path_to_wilson_data):
-                
-                    hbs_data, passed_HBS_numbers, c_p_p_hb_tmp, c_p_p_hs_tmp, c_g_p_tmp = self.read_data_HBS(path_to_HB_HS_data)
-                    c_p_p_hb += c_p_p_hb_tmp
-                    c_p_p_hs += c_p_p_hs_tmp
-                    c_g_p += c_g_p_tmp
-                    # saves the stu data from this run, later appended to stu_accumulated:
-                    data = []
-                    
-                    stu_from_SPheno, c_p_g_s_tmp, point_numbers = self.read_data_SPheno(path_to_spectrum_data, passed_HBS_numbers)
-                    c_p_g_s += c_p_g_s_tmp
-                    
-                    data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, point_numbers, passed_HBS_numbers)
-                    c_t_p_p += c_t_p_p_tmp
-                    
-                    BXsgammaRatio, BRB0eeNPRatio, BRKPLuspinunuRatio, BXB0mumuRatio = self.read_data_wilson(path_to_wilson_data, passed_HBS_numbers)
-                
-                    for i in range(len(stu_from_SPheno)):
-                        data.append(stu_from_SPheno[i] + [data_from_preSPheno[i][0], data_from_preSPheno[i][1], data_from_preSPheno[i][2]])
-                        beta_accumulated.append(data_from_preSPheno[i][6])
-                        hbs_accumulated.append(hbs_data[i])
-                        delta2_accumulated.append(data_from_preSPheno[i][10])
-                        delta3_accumulated.append(data_from_preSPheno[i][11])
-                        v1_accumulated.append(data_from_preSPheno[i][3])
-                        v2_accumulated.append(data_from_preSPheno[i][4])
-                        mH_accumulated.append(data_from_preSPheno[i][14])
-                        mS_accumulated.append(data_from_preSPheno[i][15])
-                        mA_accumulated.append(data_from_preSPheno[i][16])
-                        mChi_accumulated.append(data_from_preSPheno[i][17])
-                        mHPlus_accumulated.append(data_from_preSPheno[i][18])
-                        brB_to_Xsgamma.append(BXsgammaRatio[i])
-                        BRB0eeNP_Ratio.append(BRB0eeNPRatio[i])
-                        BRKPLuspinunu_Ratio.append(BRKPLuspinunuRatio[i])
-                        BXB0mumu_Ratio.append(BXB0mumuRatio[i])
-                        #print(stu_from_SPheno + stu_from_preSPheno)
-                
-                    #print(data)
-                    stu_accumulated.append(data)
-                    
-                elif os.path.exists(path_to_preSPheno_data):
-                    data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, -1, [])
-                    c_t_p_p += c_t_p_p_tmp
-                
-        #print(brB_to_Xsgamma)
+                    self.reap_one_run(i)
         
-        return [triple for sublist in stu_accumulated for triple in sublist], beta_accumulated, c_t_p_p, c_p_g_s, c_p_p_hb,\
-                c_p_p_hs, c_g_p, delta2_accumulated, delta3_accumulated, v1_accumulated, v2_accumulated, mH_accumulated, \
-                mS_accumulated, mA_accumulated, mChi_accumulated, mHPlus_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, \
-                BRKPLuspinunu_Ratio, BXB0mumu_Ratio
+        
+        return [triple for sublist in self.stu_accumulated for triple in sublist], self.beta_accumulated, c_t_p_p, c_p_g_s, c_p_p_hb,\
+                c_p_p_hs, c_g_p, self.delta2_accumulated, self.delta3_accumulated, self.v1_accumulated, self.v2_accumulated, self.mH_accumulated, \
+                self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated, self.mHPlus_accumulated, self.brB_to_Xsgamma, self.BRB0eeNP_Ratio, \
+                self.BRKPLuspinunu_Ratio, self.BXB0mumu_Ratio
     
     
-    def create_data_file(self, list_run_names, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p):
+    def create_data_file(self, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p):
         """Saves the collected statistics."""
         
         with open('results_analysis', 'w') as f:
@@ -507,8 +389,6 @@ class Analysis_And_Plotting(visualization.Visualization):
 
 
 #---------------------------------------------------------------------------------------------
-# This this being done on the cluster or not?
-cluster_or_not = False
 
 # Set up the paths:
 working_dir = os.getcwd()
@@ -522,6 +402,7 @@ os.chdir(Result_data)
 # (one run - one timestap-like name):
 #list_of_runs_to_harvest = [os.path.join(Result_data, '2021_06_04_04_00_45')]
 list_of_runs_to_harvest = [f.path for f in os.scandir(Result_data) if f.is_dir()]
+
 #---------------------------------------------------------------------------------------------
 
 inst = Analysis_And_Plotting()
@@ -530,7 +411,7 @@ inst = Analysis_And_Plotting()
 stu_triples, betas, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p, delta2_accumulated, delta3_accumulated, v1_accumulated,\
 v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,\
 mHPlus_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio,\
-BXB0mumu_Ratio = inst.data_harvester(list_of_runs_to_harvest, Result_data, cluster_or_not)
+BXB0mumu_Ratio = inst.data_harvester(list_of_runs_to_harvest, Result_data)
 
 # sort the stu values:
 t_spheno = np.array([triple[0] for triple in stu_triples])
@@ -553,7 +434,7 @@ os.mkdir(analysis_dir_name)
 os.chdir(analysis_dir_name)
 
 # save the analysis statistics
-inst.create_data_file(list_of_runs_to_harvest, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p)
+inst.create_data_file(c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p)
 
 # create the plots
 inst.br_plotter(v1_accumulated, v2_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio,
@@ -563,11 +444,3 @@ inst.mass_plotter(s_prespheno, t_prespheno, u_prespheno, betas, delta2_accumulat
                 v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,
                 mHPlus_accumulated)
 inst.stu_differences_plotter(num, t_spheno, s_spheno, u_spheno, t_prespheno, s_prespheno, u_prespheno)
-
-
-"""
-plotter(s_prespheno, t_prespheno, u_prespheno, betas, delta2_accumulated, delta3_accumulated, v1_accumulated,
-v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,
-mHPlus_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio)
-"""
-#stu_differences_plotter(num, t_spheno, s_spheno, u_spheno, t_prespheno, s_prespheno, u_prespheno)

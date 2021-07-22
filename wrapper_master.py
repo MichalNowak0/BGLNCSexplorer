@@ -81,7 +81,7 @@ instSimulation = wrapper_loop.Simulation(sarah_model_version, spheno_version, hi
                             spheno_BGL, HiggsBounds, HiggsSignals, Running_Env, Result_data)
 
 # and the data bunching and cleanup:
-instDataHandler = data_handling.DataHandling()
+instDataHandler = data_handling.DataHandling(toss_data, sarah_model_version)
 
 #---------------------------------------------------------------------------------------------
 # here the simulation is executed:
@@ -105,10 +105,6 @@ thisRunDir = makeNewRunFolder(now)
 instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
                 m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
 
-# If true, runs the method that discards all data except for the points that passed all contraints.
-# If false, saves all data but can easily overflow the available disc space in a real 
-# data-production run.
-if toss_data:
-    instDataHandler.dataBunching(thisRunDir)
-    
+instDataHandler.dataBunching(thisRunDir)
+
 #---------------------------------------------------------------------------------------------
