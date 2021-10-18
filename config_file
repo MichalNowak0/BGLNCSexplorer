@@ -1,7 +1,7 @@
 # Configuration file for BGLNCSexplorer.
 
 Block Control
-1 10			# number of points to sample 
+1 50			# number of points to sample 
 2 False			# Only save data of points that pass all checks
 Block Software Versions
 1 BGLNCS_stripped	# SARAH model to be used

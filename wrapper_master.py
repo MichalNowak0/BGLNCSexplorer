@@ -9,9 +9,9 @@ import os
 import numpy as np
 import datetime as dt
 
-import file_writing
+import file_writing as fw
 import wrapper_loop
-import data_handling
+import data_handling as dh
 
 #-----------------------------------------------------------------------------------------
 # This script controls the simulations that are executed by the wrapper_loop.py script. 
@@ -25,17 +25,10 @@ Working_Folder = os.getcwd()
 # Check if the config file that specifies model parameters exists:
 if os.path.exists('config_file'):
     # Read in from the configuration file:
-    config_inst = file_writing.FileWriting()
     
     maxRunNum, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
     m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
-    delta_2_sRange, delta_3_sRange, t_range, s_range, u_range = config_inst.configure_from_file(os.path.join(Working_Folder, 'config_file'))
-    
-    """
-    print(maxRunNum, toss_data, sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, m_hh2_sRange, \
-    m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, \
-    delta_2_sRange, delta_3_sRange, t_range, s_range, u_range)
-    """
+    delta_2_sRange, delta_3_sRange, t_range, s_range, u_range = fw.configure_from_file(os.path.join(Working_Folder, 'config_file'))
 
 else:
     raise Exception("Required config file not found!")
@@ -75,15 +68,6 @@ if not os.path.exists(Running_Env + '/spheno'):
     os.makedirs(Running_Env + '/spheno')
 
 #---------------------------------------------------------------------------------------------
-# initiate the modules that handle the simulation:
-#---------------------------------------------------------------------------------------------
-instSimulation = wrapper_loop.Simulation(sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version, maxRunNum,
-                            spheno_BGL, HiggsBounds, HiggsSignals, Running_Env, Result_data)
-
-# and the data bunching and cleanup:
-instDataHandler = data_handling.DataHandling(toss_data, sarah_model_version)
-
-#---------------------------------------------------------------------------------------------
 # here the simulation is executed:
 #---------------------------------------------------------------------------------------------
 
@@ -102,9 +86,11 @@ def makeNewRunFolder(now):
 now = dt.datetime.now()
 thisRunDir = makeNewRunFolder(now)
 
-instSimulation.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
-                m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range)
+wrapper_loop.simulationLoop(thisRunDir, v_3_sRange, beta_sRange, a1_sRange, gamma1_sRange, delta_2_sRange, delta_3_sRange, m_hh2_sRange,
+                m_hh3_sRange, m_ah_sRange, m_pgs_sRange, m_chh_sRange, t_range, s_range, u_range, 
+                sarah_model_version, spheno_version, higgs_bounds_version, higgs_signals_version,
+                maxRunNum, spheno_BGL, HiggsBounds, HiggsSignals, Running_Env, Result_data)
 
-instDataHandler.dataBunching(thisRunDir)
+dh.dataBunching(thisRunDir, toss_data, sarah_model_version)
 
 #---------------------------------------------------------------------------------------------

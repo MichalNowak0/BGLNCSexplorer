@@ -11,267 +11,361 @@ import sys
 import datetime as dt
 import flavio as fl
 from wilson import Wilson as wn
+import time
 
 import visualization
+import file_writing as fw
 
 class Analysis_And_Plotting(visualization.Visualization):
     def __init__(self):
         
         visualization.Visualization.__init__(self)
-    
-
-    def read_data_SPheno(self, path, passed_HBS_numbers):
-        """Reads the STU parameters from the file containing the harvested SPheno data"""
-        a = []
-        data = []
-        point_numbers = []
-        point_number = -1
-        c_p_g_s = 0
-        # If we have reached the block contanining the Electroweak Precision Observables:
-        EW_P_O_info = False    
-        with open(path, 'r') as f:
-            
-            for line in f.readlines():
-                
-                if line.startswith('>>point'):
-                    point_numbers.append(int(line.strip('\n').split('t')[1]))
-                    point_number = int(line.strip('\n').split('t')[1])
-                    c_p_g_s += 1
-                    
-                if line.startswith('Block SPhenoLowEnergy'):
-                #Electroweak precision observables
-                    EW_P_O_info = True
-                    
-                if line.startswith('Block FlavorKitQFV # quark flavor violating observables'):
-                    EW_P_O_info=False
-                    
-                    if len(a) != 0 and point_number in passed_HBS_numbers:
-                        T = float(a[1].split()[1] )
-                        S = float(a[2].split()[1] )
-                        U = float(a[3].split()[1] )
-                        data.append([T, S, U])
-                        a = []
-                        
-                if EW_P_O_info:
-                    a.append(line.strip('\n'))
-                    
-        #a = line.strip('\n')
         
-        return data, c_p_g_s, point_numbers
-
-
-    def read_data_preSPheno(self, path, point_numbers, passed_HBS_numbers):
-        """Reads the STU parameters from the file containing the saved pre-SPheno data"""
-        a_stu = []
-        a_angles = []
-        a_masses = []
-        data = []
-        point_number = -1
-        c_t_p_p = 0
-        # If we have reached the block contanining the Electroweak Precision Obervables:
-        e_p_o = False
-        angles = False
-        masses = False
-        with open(path, 'r') as f:
-            
-            for line in f.readlines():
-                
-                if line.startswith('>>point'):
-                    point_number= int(line.strip('\n').split('t')[1])
-                    c_t_p_p += 1
-                    
-                if line.startswith('        # Vev:s') or line.startswith('# Vev:s'):
-                # Angles 
-                    angles = True
-                    
-                if line.startswith('        # Electroweak') or line.startswith('# Electroweak'):
-                # Electroweak precision observables
-                    e_p_o = True
-                    
-                if line.startswith('        # Higgs Masses') or line.startswith('# Higgs Masses'):
-                # Electroweak precision observables
-                    masses = True
-                    
-                if line.startswith('>>endpoint'):
-                    
-                    if point_number in passed_HBS_numbers:
-                        tmp = []
-                        
-                        tmp.append(float(a_stu[2].split()[0] ))
-                        tmp.append(float(a_stu[3].split()[0] ))
-                        tmp.append(float(a_stu[4].split()[0] ))
-                        
-                        tmp.append(float(a_angles[2].split()[0] ))
-                        tmp.append(float(a_angles[3].split()[0] ))
-                        tmp.append(float(a_angles[4].split()[0] ))
-                        tmp.append(float(a_angles[5].split()[0] ))
-                        tmp.append(float(a_angles[6].split()[0] ))
-                        tmp.append(float(a_angles[7].split()[0] ))
-                        tmp.append(float(a_angles[8].split()[0] ))
-                        tmp.append(float(a_angles[9].split()[0] ))
-                        tmp.append(float(a_angles[10].split()[0] ))
-                        tmp.append(float(a_angles[11].split()[0] ))
-                        
-                        tmp.append(float(a_masses[2].split()[0] ))
-                        tmp.append(float(a_masses[3].split()[0] ))
-                        tmp.append(float(a_masses[4].split()[0] ))
-                        tmp.append(float(a_masses[5].split()[0] ))
-                        tmp.append(float(a_masses[6].split()[0] ))
-                        tmp.append(float(a_masses[7].split()[0] ))
-                        
-                        
-                        data.append(tmp)
-                    a_stu = []
-                    a_angles = []
-                    a_masses = []
-                    e_p_o = False
-                    angles = False
-                    masses = False
-                    point_number = -1
-                    
-                if not point_numbers == -1:
-                    
-                    if e_p_o and point_number in point_numbers:
-                        a_stu.append(line.strip('\n'))
-                        
-                    if angles and point_number in point_numbers:
-                        a_angles.append(line.strip('\n'))
-                        
-                    if masses and point_number in point_numbers:
-                        a_masses.append(line.strip('\n'))
+        #-----------------------------------------------------------------------------------
+        # Configuration variables:
+        self.flavorObsDict = dict()
+        self.experimentalData = dict()
+        self.plotFailedPoints = False
+        self.numOfFailedPointsToHarvest = 1
+        self.plotSPhenoFailPoints = False
+        self.plotSphenoDifferences = False
+        self.create_register = False
+        self.use_register = False
         
-        return data, c_t_p_p
-
-
-    def read_data_HBS(self, path):
-        data = []
+        #-----------------------------------------------------------------------------------
+        # Lists for tranferring data between data files and the plotting methods:
+            
+        self.stu_accumulated = []
+        self.beta_accumulated = []
+        self.delta2_accumulated = []
+        self.delta3_accumulated = []
+        self.v1_accumulated = []
+        self.v2_accumulated = []
+        self.hbs_accumulated = []
+        self.mH_accumulated = []
+        self.mS_accumulated = []
+        self.mA_accumulated = []
+        self.mChi_accumulated = []
+        self.mHPlus_accumulated = []
+        
+        self.key_list = []
+        
+        # Flavor observables:
+        
+        self.BXsgammaRatio = []
+        self.BRB0eeRatio = []
+        self.BRKPLuspinunuRatio = []
+        self.BXB0mumuRatio = []
+        self.BRBsmumuRatio = []
+        self.BRZtoemuRatio = []
+        self.BRZtoetauRatio = []
+        self.BRZtomutauRatio = []
+        self.EpsilonKRatio = []
+        self.DeltaMdRatio = []
+        self.DeltaMsRatio = []
+        
+        # for failed points:
+        self.stu_accumulated_f = []
+        self.beta_accumulated_f = []
+        self.delta2_accumulated_f = []
+        self.delta3_accumulated_f = []
+        self.v1_accumulated_f = []
+        self.v2_accumulated_f = []
+        self.hbs_accumulated_f = []
+        self.mH_accumulated_f = []
+        self.mS_accumulated_f = []
+        self.mA_accumulated_f = []
+        self.mChi_accumulated_f = []
+        self.mHPlus_accumulated_f = []
+            
+        self.BXsgammaRatio_f = []
+        self.BRB0eeRatio_f = []
+        self.BRKPLuspinunuRatio_f = []
+        self.BXB0mumuRatio_f = []
+        self.BRBsmumuRatio_f = []
+        self.BRZtoemuRatio_f = []
+        self.BRZtoetauRatio_f = []
+        self.BRZtomutauRatio_f = []
+        self.EpsilonKRatio_f = []
+        self.DeltaMdRatio_f = []
+        self.DeltaMsRatio_f = []
+        
+        # Debugging stuff:
+        self.flags = []
+        self.lambdas = []
+        
+        # Counter that keeps track of how many failed points have been harvested:
+        self.fail_pt_counter = 0
+        
+        #-----------------------------------------------------------------------------------------
+        
+        # counter: total number of generated parameter points:
+        self.c_t_p_p = 0
+        # counter: total number of points that went all the way to SPheno (passed copositivity & unitarity):
+        self.c_t_s_p = 0
+        # counter: points that generated SPheno output:
+        self.c_p_g_s = 0
         # counter: points that passed HiggsBounds:
-        c_p_p_hb = 0
+        self.c_p_p_hb = 0
         # counter: points that passed HiggsSignals:
-        c_p_p_hs = 0
+        self.c_p_p_hs = 0
         # counter: good points (passed everything):
-        c_g_p = 0
+        self.c_g_p = 0
         
-        # If we have reached the block contanining the Electroweak Precision Obervables:
-        HB_block = False    
-        HS_block = False
+        #-----------------------------------------------------------------------------------------
         
-        #
-        HB_read = False
-        HS_read = False
+    def uncertaintyFormula(self, sm_pred, sm_uncert, exp_val, exp_uncert):
         
-        tmp = [0, 0, 0, -1, False]
-        #tmp = [0, 0, 0, -1, True]
-        point_number = -1
-        
-        with open(path, 'r') as f:
-            
-            for line in f.readlines():
-                
-                if line.startswith('>>point'):
-                    HB_read = False
-                    HS_read = False
-                    point_number = int((line.strip('\n').split('t')[1]).split('_')[0])
-                    tmp[3] = point_number
-                    
-                    if line.strip('\n').split('_')[1] == 'HB':
-                        HB_block = True   
-                        HS_block = False 
-                        
-                    else:
-                        HB_block = False   
-                        HS_block = True
-                        
-                if line.startswith('>>endpoint'):
-                    data.append(tmp)
-                    tmp = [0, 0, 0, -1, False]
-                    HB_block = False    
-                    HS_block = False
-                    
-                if not line.startswith('#') and not line.startswith(' #') and not line.startswith('>>point') and HB_block and not HB_read:
-                    tmp[0] = int(line.strip('\n').split()[7])
-                    tmp[1] = float(line.strip('\n').split()[9])
-                    HB_read = True
-                    
-                if not line.startswith('#') and not line.startswith(' #') and not line.startswith('>>point') and HS_block and not HS_read:
-                    tmp[2] = float(line.strip('\n').split()[13])
-                    HS_read = True
-                    
-        
-        passed_HBS_numbers = []
-        
-        for i in range(len(data)):
-            if data[i][0] == 1 and data[i][1] < 1.:
-                c_p_p_hb += 1
-            if data[i][2] >= 0.05:
-                c_p_p_hs += 1
-            if data[i][0] == 1 and data[i][1] < 1. and data[i][2] >= 0.05:
-                c_g_p += 1
-                data[i][4] == True
-                passed_HBS_numbers.append(data[i][3])
-            #passed_HBS_numbers.append(data[i][3])
-        
-        return data, passed_HBS_numbers, c_p_p_hb, c_p_p_hs, c_g_p
+        return np.sqrt(exp_uncert**2 + sm_uncert**2*exp_val**2/(sm_pred**2))/sm_pred   
 
-    def read_one_WC_block(self, path, n):
-        right_block = False
-        with open(path, 'r') as f:
-            
-            with open('tmp_WC_file', 'w') as w:
-                
-                for line in f.readlines():
-                    
-                    if line.startswith('>>pointW_1_{}'.format(n)):
-                        right_block = True
-                        #print("hey", path)
-                        continue
-                        
-                    if line.startswith('>>endW_1_{}'.format(n)):
-                        right_block = False
-                        break
-                    
-                    if right_block:
-                        w.write(line)
-                    
-        with open('tmp_WC_file', 'r') as r:
-            #print("ney", n)
-            myw = wn.load_wc(r)
-            
-        return myw
-
-    def read_data_wilson(self, path, passed_HBS_numbers):
-        
-        BXsgammaRatio = []
-        BRB0eeNPRatio = []
-        BRKPLuspinunuRatio = []
-        BXB0mumuRatio = []
+    def read_data_wilson(self, path, passed_HBS_numbers, list_switch):
         
         for i in passed_HBS_numbers:
-            myw = self.read_one_WC_block(path, i)
-            BRBXsgammaNP = fl.np_prediction('BR(B->Xsgamma)', myw)
-            BRBXsgammaSM = fl.sm_prediction('BR(B->Xsgamma)')
+            myw = fw.read_one_WC_block(path, i)
             
-            BXsgammaRatio.append(BRBXsgammaNP/BRBXsgammaSM)
+            if self.flavorObsDict["BtoXsGamma"]:
+                ratio_tmp = fl.np_prediction('BR(B->Xsgamma)', myw)/self.BRBXsgammaSM
+                
+                if list_switch:
+                    self.BXsgammaRatio.append(ratio_tmp)
+                    
+                else:
+                    self.BXB0mumuRatio_f.append(ratio_tmp)
             
-            BRB0eeNP = fl.np_prediction('BR(B0->ee)', myw)
-            BRB0eeSM = fl.sm_prediction('BR(B0->ee)')
+            if self.flavorObsDict["B0toee"]:
+                ratio_tmp = fl.np_prediction('BR(B0->ee)', myw)/self.BRB0eeSM
+                
+                if list_switch:
+                    self.BRB0eeRatio.append(ratio_tmp)
+                    
+                else:
+                    self.BRB0eeRatio_f.append(ratio_tmp)
             
-            BRB0eeNPRatio.append(BRB0eeNP / BRB0eeSM)
+            if self.flavorObsDict["B0toMuMu"]:
+                ratio_tmp = fl.np_prediction('BR(B0->mumu)', myw)/self.B0mumuSM
+                
+                if list_switch:
+                    self.BXB0mumuRatio.append(ratio_tmp)
+                    
+                else:
+                    self.BXB0mumuRatio_f.append(ratio_tmp)
+                
+            if self.flavorObsDict["K+toPiNuNu"]:
+                ratio_tmp  = fl.np_prediction('BR(K+->pinunu)', myw)/self.BRKPLuspinunuSm
+                
+                if list_switch:
+                    self.BRKPLuspinunuRatio.append(ratio_tmp)
+                    
+                else:
+                    self.BRKPLuspinunuRatio_f.append(ratio_tmp)
+                
+            if self.flavorObsDict["BstoMuMu"]:
+                ratio_tmp  = fl.np_prediction('BR(Bs->mumu)', myw)/self.BRBsmumuSm
+                
+                if list_switch:
+                    self.BRBsmumuRatio.append(ratio_tmp)
+                    
+                else:
+                    self.BRBsmumuRatio_f.append(ratio_tmp)
             
-            BRKPLuspinunuNp  = fl.np_prediction('BR(K+->pinunu)', myw)
-            BRKPLuspinunuSm = fl.sm_prediction('BR(K+->pinunu)')
+            """
+            if self.flavorObsDict["ZtoEMu"]:
+                BRZtoemuNp  = fl.np_prediction('BR(Z->emu)', myw)
+                
+                self.BRZtoemuRatio.append(BRZtoemuNp/self.BRZtoemuSm)
+                
+            if self.flavorObsDict["ZtoETau"]:
+                BRZtoetauNp  = fl.np_prediction('BR(Z->etau)', myw)
+                
+                self.BRZtoetauRatio.append(BRZtoetauNp/self.BRZtoetauSm)
+                
+            if self.flavorObsDict["ZtoMuTau"]:
+                BRZtomutauNp  = fl.np_prediction('BR(Z->mutau)', myw)
+                
+                self.BRZtomutauRatio.append(BRZtomutauNp/self.BRZtomutauSm)
+            """
             
-            BRKPLuspinunuRatio.append(BRKPLuspinunuNp/BRKPLuspinunuSm)
-            
-            B0mumuNp = fl.np_prediction('BR(B0->mumu)', myw)
-            B0mumuSM = fl.sm_prediction('BR(B0->mumu)')
-            
-            BXB0mumuRatio.append(B0mumuNp/B0mumuSM)
+            if self.flavorObsDict["EpsilonK"]:
+                ratio_tmp  = fl.np_prediction('eps_K', myw)/self.EpsilonKSm
+                
+                if list_switch:
+                    self.EpsilonKRatio.append(ratio_tmp)
+                    
+                else:
+                    self.EpsilonKRatio_f.append(ratio_tmp)
+                
+            if self.flavorObsDict["DeltaMd"]:
+                ratio_tmp  = fl.np_prediction('DeltaM_d', myw)/self.DeltaMdSm
+                
+                if list_switch:
+                    self.DeltaMdRatio.append(ratio_tmp)
+                    
+                else:
+                    self.DeltaMdRatio_f.append(ratio_tmp)
+                    
+            if self.flavorObsDict["DeltaMs"]:
+                ratio_tmp  = fl.np_prediction('DeltaM_s', myw)/self.DeltaMsSm
+                
+                if list_switch:
+                    self.DeltaMsRatio.append(ratio_tmp)
+                    
+                else:
+                    self.DeltaMsRatio_f.append(ratio_tmp)
             
         
-        return BXsgammaRatio, BRB0eeNPRatio, BRKPLuspinunuRatio, BXB0mumuRatio
+        #return BXsgammaRatio, BRB0eeRatio, BRKPLuspinunuRatio, BXB0mumuRatio, BRBsmumuRatio, BRZtoemuRatio, \
+        #BRZtoetauRatio, BRZtomutauRatio, EpsilonKRatio, DeltaMdRatio
+               
+    def complementary_flavor_analysis(self):
+        # Perform some calculations that don't have to be done for each point, thereby saving time.
+        
+        if self.flavorObsDict["BtoXsGamma"]:
+            self.BRBXsgammaSM = fl.sm_prediction('BR(B->Xsgamma)')
+            sm_uncert = fl.sm_uncertainty('BR(B->Xsgamma)', N = 1000)
+            #print(self.BRBXsgammaSM, sm_uncert)
+            self.BXsgammaUncertMinus = (1 - self.uncertaintyFormula(self.BRBXsgammaSM,
+                                                          sm_uncert,
+                                                          self.experimentalData["BtoXsGamma_data"][0],
+                                                          self.experimentalData["BtoXsGamma_data"][1]))
+            self.BXsgammaUncertPlus = (1 + self.uncertaintyFormula(self.BRBXsgammaSM,
+                                                          sm_uncert,
+                                                          self.experimentalData["BtoXsGamma_data"][0],
+                                                          self.experimentalData["BtoXsGamma_data"][2]))
+            
+            #print("B to Xs gamma: ", self.BXsgammaUncertMinus, self.BXsgammaUncertPlus, self.BRBXsgammaSM, sm_uncert)
+                
+        if self.flavorObsDict["B0toee"]:
+            self.BRB0eeSM = fl.sm_prediction('BR(B0->ee)')
+            sm_uncert = fl.sm_uncertainty('BR(B0->ee)', N = 1000)
+            #print(self.BRB0eeSM, sm_uncert)
+            self.BRB0eeUncertMinus = (1 - self.uncertaintyFormula(self.BRB0eeSM,
+                                                          sm_uncert,
+                                                          self.experimentalData["B0toee_data"][0],
+                                                          self.experimentalData["B0toee_data"][1]))
+            self.BRB0eeUncertPlus = (1 + self.uncertaintyFormula(self.BRB0eeSM,
+                                                          sm_uncert,
+                                                          self.experimentalData["B0toee_data"][0],
+                                                          self.experimentalData["B0toee_data"][2]))
+            
+            #print("B0 to e e: ", self.BRB0eeUncertMinus, self.BRB0eeUncertPlus, self.BRB0eeSM, sm_uncert)
+            
+        if self.flavorObsDict["B0toMuMu"]:
+            self.B0mumuSM = fl.sm_prediction('BR(B0->mumu)')
+            sm_uncert = fl.sm_uncertainty('BR(B0->mumu)', N = 1000)
+            #print(self.B0mumuSM, sm_uncert)
+            self.BXB0mumuUncertMinus = (1 - self.uncertaintyFormula(self.B0mumuSM,
+                                                          sm_uncert,
+                                                          self.experimentalData["B0toMuMu_data"][0],
+                                                          self.experimentalData["B0toMuMu_data"][1]))
+            self.BXB0mumuUncertPlus = (1 + self.uncertaintyFormula(self.B0mumuSM,
+                                                          sm_uncert,
+                                                          self.experimentalData["B0toMuMu_data"][0],
+                                                          self.experimentalData["B0toMuMu_data"][2]))
+            
+            #print("B0 to mu mu: ", self.BXB0mumuUncertMinus, self.BXB0mumuUncertPlus, self.B0mumuSM, sm_uncert)
+            
+        if self.flavorObsDict["K+toPiNuNu"]:
+            self.BRKPLuspinunuSm = fl.sm_prediction('BR(K+->pinunu)')
+            sm_uncert = fl.sm_uncertainty('BR(K+->pinunu)', N = 1000)
+            #print(self.BRKPLuspinunuSm, sm_uncert)
+            self.BRKPLuspinunuUncertMinus = (1 - self.uncertaintyFormula(self.BRKPLuspinunuSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["K+toPiNuNu_data"][0],
+                                                          self.experimentalData["K+toPiNuNu_data"][1]))
+            self.BRKPLuspinunuUncertPlus = (1 + self.uncertaintyFormula(self.BRKPLuspinunuSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["K+toPiNuNu_data"][0],
+                                                          self.experimentalData["K+toPiNuNu_data"][2]))
+            
+        if self.flavorObsDict["BstoMuMu"]:
+            self.BRBsmumuSm = fl.sm_prediction('BR(Bs->mumu)')
+            sm_uncert = fl.sm_uncertainty('BR(Bs->mumu)', N = 1000)
+            #print(self.BRBsmumuSm, sm_uncert)
+            self.BRBsmumuUncertMinus = (1 - self.uncertaintyFormula(self.BRBsmumuSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["BstoMuMu_data"][0],
+                                                          self.experimentalData["BstoMuMu_data"][1]))
+            self.BRBsmumuUncertPlus = (1 + self.uncertaintyFormula(self.BRBsmumuSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["BstoMuMu_data"][0],
+                                                          self.experimentalData["BstoMuMu_data"][2]))
+            
+            #print("Bs to mu mu: ", self.BRBsmumuUncertMinus, self.BRBsmumuUncertPlus, self.BRBsmumuSm, sm_uncert)
+            
+        if self.flavorObsDict["ZtoEMu"]:
+            self.BRZtoemuSm = fl.sm_prediction('BR(Z->emu)')
+            sm_uncert = fl.sm_uncertainty('BR(Z->emu)', N = 1000)
+            self.ZtoEMuUncertMinus = (1 - self.uncertaintyFormula(self.BRZtoemuSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["ZtoEMu_data"][0],
+                                                          self.experimentalData["ZtoEMu_data"][1]))
+            self.ZtoEMuUncertPlus = (1 + self.uncertaintyFormula(self.BRZtoemuSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["ZtoEMu_data"][0],
+                                                          self.experimentalData["ZtoEMu_data"][2]))
+            
+        if self.flavorObsDict["ZtoETau"]:
+            self.BRZtoetauSm = fl.sm_prediction('BR(Z->etau)')
+            sm_uncert = fl.sm_uncertainty('BR(Z->etau)', N = 1000)
+            self.ZtoETauUncertMinus = (1 - self.uncertaintyFormula(self.BRZtoetauSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["ZtoETau_data"][0],
+                                                          self.experimentalData["ZtoETau_data"][1]))
+            self.ZtoETauUncertPlus = (1 + self.uncertaintyFormula(self.BRZtoetauSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["ZtoETau_data"][0],
+                                                          self.experimentalData["ZtoETau_data"][2]))
+            
+        if self.flavorObsDict["ZtoMuTau"]:
+            self.BRZtomutauSm = fl.sm_prediction('BR(Z->mutau)')
+            sm_uncert = fl.sm_uncertainty('BR(Z->mutau)', N = 1000)
+            self.ZtoMuTauUncertMinus = (1 - self.uncertaintyFormula(self.BRZtomutauSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["ZtoMuTau_data"][0],
+                                                          self.experimentalData["ZtoMuTau_data"][1]))
+            self.ZtoMuTauUncertPlus = (1 + self.uncertaintyFormula(self.BRZtomutauSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["ZtoMuTau_data"][0],
+                                                          self.experimentalData["ZtoMuTau_data"][2]))
+            
+        if self.flavorObsDict["EpsilonK"]:
+            self.EpsilonKSm = fl.sm_prediction('eps_K')
+            sm_uncert = fl.sm_uncertainty('eps_K', N = 1000)
+            self.EpsilonKUncertMinus = (1 - self.uncertaintyFormula(self.EpsilonKSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["EpsilonK_data"][0],
+                                                          self.experimentalData["EpsilonK_data"][1]))
+            self.EpsilonKUncertPlus = (1 + self.uncertaintyFormula(self.EpsilonKSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["EpsilonK_data"][0],
+                                                          self.experimentalData["EpsilonK_data"][2]))
+            
+        if self.flavorObsDict["DeltaMd"]:
+            self.DeltaMdSm = fl.sm_prediction('DeltaM_d')
+            sm_uncert = fl.sm_uncertainty('DeltaM_d', N = 1000)
+            self.DeltaMdUncertMinus = (1 - self.uncertaintyFormula(self.DeltaMdSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["DeltaMd_data"][0],
+                                                          self.experimentalData["DeltaMd_data"][1]))
+            self.DeltaMdUncertPlus = (1 + self.uncertaintyFormula(self.DeltaMdSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["DeltaMd_data"][0],
+                                                          self.experimentalData["DeltaMd_data"][2]))
+            
+        if self.flavorObsDict["DeltaMs"]:
+            self.DeltaMsSm = fl.sm_prediction('DeltaM_s')
+            sm_uncert = fl.sm_uncertainty('DeltaM_s', N = 1000)
+            self.DeltaMsUncertMinus = (1 - self.uncertaintyFormula(self.DeltaMsSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["DeltaMs_data"][0],
+                                                          self.experimentalData["DeltaMs_data"][1]))
+            self.DeltaMsUncertPlus = (1 + self.uncertaintyFormula(self.DeltaMsSm,
+                                                          sm_uncert,
+                                                          self.experimentalData["DeltaMs_data"][0],
+                                                          self.experimentalData["DeltaMs_data"][2]))
     
-    def reap_one_run(self, i):
+    def reap_one_run(self, i, list_of_points):
+        
         # set up the paths to the output files:
         path_to_spectrum_data = os.path.join(i, 'spectrumAccumulated')
         path_to_preSPheno_data = os.path.join(i, 'preSPhenoAccumulated')
@@ -282,24 +376,49 @@ class Analysis_And_Plotting(visualization.Visualization):
         
         if os.path.exists(path_to_HB_HS_data) and os.path.exists(path_to_spectrum_data) and \
             os.path.exists(path_to_preSPheno_data) and os.path.exists(path_to_wilson_data):
-        
-            hbs_data, passed_HBS_numbers, c_p_p_hb_tmp, c_p_p_hs_tmp, c_g_p_tmp = self.read_data_HBS(path_to_HB_HS_data)
+            
+            # Check which points passed HB & HS and record their number:
+            hbs_data, passed_HBS_numbers, c_p_p_hb_tmp, c_p_p_hs_tmp, c_g_p_tmp = fw.read_data_HBS(path_to_HB_HS_data,
+                                                                                                   list_of_points,
+                                                                                                   self.use_register)
             self.c_p_p_hb += c_p_p_hb_tmp
             self.c_p_p_hs += c_p_p_hs_tmp
             self.c_g_p += c_g_p_tmp
+            
+            if self.create_register and not self.use_register:
+                # Update the register to include the passing points:
+                if not passed_HBS_numbers:
+                    # If there were no passing points in the current directory:
+                    pass
+                
+                else:
+                    fw.update_register(i, passed_HBS_numbers)
+            
             # saves the stu data from this run, later appended to stu_accumulated:
             data = []
+            data_f = []
             
-            stu_from_SPheno, c_p_g_s_tmp, point_numbers = self.read_data_SPheno(path_to_spectrum_data, passed_HBS_numbers)
+            stu_from_SPheno, c_p_g_s_tmp, point_numbers = fw.read_data_SPheno(path_to_spectrum_data,
+                                                                                passed_HBS_numbers)
             self.c_p_g_s += c_p_g_s_tmp
             
-            data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, point_numbers, passed_HBS_numbers)
+            data_from_preSPheno, data_failed_points, flag_data, lambda_data, c_t_p_p_tmp, failed_pt_nums, \
+            failed_pt_counter_tmp = fw.read_data_preSPheno(path_to_preSPheno_data,
+                                                             point_numbers,
+                                                             passed_HBS_numbers,
+                                                             self.fail_pt_counter, self.plotFailedPoints,
+                                                             self.numOfFailedPointsToHarvest, 
+                                                             self.plotSPhenoFailPoints)
+            self.fail_pt_counter = failed_pt_counter_tmp
+            
             self.c_t_p_p += c_t_p_p_tmp
             
-            BXsgammaRatio, BRB0eeNPRatio, BRKPLuspinunuRatio, BXB0mumuRatio = self.read_data_wilson(path_to_wilson_data, passed_HBS_numbers)
-        
+            self.read_data_wilson(path_to_wilson_data, passed_HBS_numbers, True)
+            
             for i in range(len(stu_from_SPheno)):
-                data.append(stu_from_SPheno[i] + [data_from_preSPheno[i][0], data_from_preSPheno[i][1], data_from_preSPheno[i][2]])
+                data.append(stu_from_SPheno[i] + [data_from_preSPheno[i][0],
+                                                  data_from_preSPheno[i][1],
+                                                  data_from_preSPheno[i][2]])
                 self.beta_accumulated.append(data_from_preSPheno[i][6])
                 self.hbs_accumulated.append(hbs_data[i])
                 self.delta2_accumulated.append(data_from_preSPheno[i][10])
@@ -311,69 +430,232 @@ class Analysis_And_Plotting(visualization.Visualization):
                 self.mA_accumulated.append(data_from_preSPheno[i][16])
                 self.mChi_accumulated.append(data_from_preSPheno[i][17])
                 self.mHPlus_accumulated.append(data_from_preSPheno[i][18])
-                self.brB_to_Xsgamma.append(BXsgammaRatio[i])
-                self.BRB0eeNP_Ratio.append(BRB0eeNPRatio[i])
-                self.BRKPLuspinunu_Ratio.append(BRKPLuspinunuRatio[i])
-                self.BXB0mumu_Ratio.append(BXB0mumuRatio[i])
-                #print(stu_from_SPheno + stu_from_preSPheno)
-        
+                
+            for i in range(len(data_failed_points)):
+                data_f.append([data_failed_points[i][0],
+                               data_failed_points[i][1],
+                               data_failed_points[i][2]])
+                self.beta_accumulated_f.append(data_failed_points[i][6])
+                self.delta2_accumulated_f.append(data_failed_points[i][10])
+                self.delta3_accumulated_f.append(data_failed_points[i][11])
+                self.v1_accumulated_f.append(data_failed_points[i][3])
+                self.v2_accumulated_f.append(data_failed_points[i][4])
+                self.mH_accumulated_f.append(data_failed_points[i][14])
+                self.mS_accumulated_f.append(data_failed_points[i][15])
+                self.mA_accumulated_f.append(data_failed_points[i][16])
+                self.mChi_accumulated_f.append(data_failed_points[i][17])
+                self.mHPlus_accumulated_f.append(data_failed_points[i][18])
+                
+                
+            for i in range(len(flag_data)):
+                self.flags.append(flag_data[i])
+                absLambdas = [abs(ele) for ele in lambda_data[i]]
+                self.lambdas.append(max(absLambdas))
+                
             #print(data)
             self.stu_accumulated.append(data)
-            
+            self.stu_accumulated_f.append(data_f)
+        
         elif os.path.exists(path_to_preSPheno_data):
-            data_from_preSPheno, c_t_p_p_tmp = self.read_data_preSPheno(path_to_preSPheno_data, -1, [])
-            self.c_t_p_p += c_t_p_p_tmp
-    
-    def data_harvester(self, list_of_runs_to_harvest, Result_data):
-        # save the harvested data from the different runs in these lists:
-        self.stu_accumulated = []
-        self.beta_accumulated = []
-        self.delta2_accumulated = []
-        self.delta3_accumulated = []
-        self.v1_accumulated = []
-        self.v2_accumulated = []
-        self.hbs_accumulated = []
-        self.mH_accumulated= []
-        self.mS_accumulated= []
-        self.mA_accumulated= []
-        self.mChi_accumulated= []
-        self.mHPlus_accumulated= []
-        self.brB_to_Xsgamma = []
-        self.BRB0eeNP_Ratio = []
-        self.BRKPLuspinunu_Ratio = []
-        self.BXB0mumu_Ratio = []
-        
-        # counter: total number of generated parameter points:
-        self.c_t_p_p = 0
-        # counter: total number of points that went all the way to SPheno (passed copositivity & unitarity):
-        self.c_t_s_p = 0
-        # counter: points that generated SPheno output:
-        self.c_p_g_s = 0
-        # counter: points that passed HiggsBounds:
-        self.self.c_p_p_hb = 0
-        # counter: points that passed HiggsSignals:
-        self.c_p_p_hs = 0
-        # counter: good points (passed everything):
-        self.c_g_p = 0
-        
-        # Loop over the runs to harvest:
-        for j in list_of_runs_to_harvest:
+            data_from_preSPheno, data_failed_points, flag_data, lambda_data, c_t_p_p_tmp, failed_pt_nums, \
+            failed_pt_counter_tmp = fw.read_data_preSPheno(path_to_preSPheno_data, [], [],
+                                                           self.fail_pt_counter, self.plotFailedPoints,
+                                                           self.numOfFailedPointsToHarvest, 
+                                                           self.plotSPhenoFailPoints)
             
-            check_preSPheno_path = os.path.join(j, 'preSPhenoAccumulated')
+            
+            self.fail_pt_counter = failed_pt_counter_tmp
+            self.c_t_p_p += c_t_p_p_tmp
+            data_f = []
+            
+            for i in range(len(data_failed_points)):
+                data_f.append([data_failed_points[i][0],
+                               data_failed_points[i][1],
+                               data_failed_points[i][2]])
+                self.beta_accumulated_f.append(data_failed_points[i][6])
+                self.delta2_accumulated_f.append(data_failed_points[i][10])
+                self.delta3_accumulated_f.append(data_failed_points[i][11])
+                self.v1_accumulated_f.append(data_failed_points[i][3])
+                self.v2_accumulated_f.append(data_failed_points[i][4])
+                self.mH_accumulated_f.append(data_failed_points[i][14])
+                self.mS_accumulated_f.append(data_failed_points[i][15])
+                self.mA_accumulated_f.append(data_failed_points[i][16])
+                self.mChi_accumulated_f.append(data_failed_points[i][17])
+                self.mHPlus_accumulated_f.append(data_failed_points[i][18])
+                
+            self.stu_accumulated_f.append(data_f)
+            
+            #self.read_data_wilson(path_to_wilson_data, failed_pt_nums, False)
+            
+            """
+            for i in range(len(flag_data)):
+                self.flags.append(flag_data[i])
+                absLambdas = [abs(ele) for ele in lambda_data[i]]
+                self.lambdas.append(max(absLambdas))
+                """
+                
+    
+    def data_harvester(self, list_of_runs_to_harvest, Result_data, working_dir):
+        # save the harvested data from the different runs in these lists:
+        
+        # read in the configuration options from file:
+        path_to_config_file = os.path.join(working_dir, 'analysis_config_file')
+        
+        if os.path.exists(path_to_config_file):
+            self.flavorObsDict, self.experimentalData, self.plotFailedPoints, self.numOfFailedPointsToHarvest,\
+            self.plotSPhenoFailPoints, self.plotSphenoDifferences, self.create_register, self.use_register, \
+            = fw.configure_analysis_from_file(path_to_config_file)
+        else:
+            raise Exception("Missing configure file <analysis_config_file> !")
+        
+        # perform the point-data independent part of the flavor analysis:
+        self.complementary_flavor_analysis()
+        #print(self.BXB0mumuUncertMinus, self.BXB0mumuUncertPlus, self.BRB0eeUncertMinus, self.BRB0eeUncertPlus)
+        
+        # If we are using the register, replace the list of directories by those that have passing points:
+        list_of_points = []
+        if self.use_register:
+            
+            list_of_runs_to_harvest, list_of_points = fw.read_register(Result_data)
+            
+        # Loop over the runs to harvest:
+        for j in range(len(list_of_runs_to_harvest)):
+            
+            check_preSPheno_path = os.path.join(list_of_runs_to_harvest[j], 'preSPhenoAccumulated')
             if os.path.exists(check_preSPheno_path):
-                self.reap_one_run(j)
+                if self.use_register:
+                    self.reap_one_run(list_of_runs_to_harvest[j], list_of_points[j])
+                    
+                else:
+                    self.reap_one_run(list_of_runs_to_harvest[j], list_of_points)
                 
             else:
-                inner_list = [f.path for f in os.scandir(j) if f.is_dir()]
+                inner_list = [f.path for f in os.scandir(list_of_runs_to_harvest[j]) if f.is_dir()]
                 for i in inner_list:
-                    self.reap_one_run(i)
+                    if self.use_register:
+                        self.reap_one_run(i, list_of_points[j])
+                        
+                    else:
+                        self.reap_one_run(i, list_of_points)
         
         
-        return [triple for sublist in self.stu_accumulated for triple in sublist], self.beta_accumulated, c_t_p_p, c_p_g_s, c_p_p_hb,\
-                c_p_p_hs, c_g_p, self.delta2_accumulated, self.delta3_accumulated, self.v1_accumulated, self.v2_accumulated, self.mH_accumulated, \
-                self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated, self.mHPlus_accumulated, self.brB_to_Xsgamma, self.BRB0eeNP_Ratio, \
-                self.BRKPLuspinunu_Ratio, self.BXB0mumu_Ratio
+        # Put the STU data in appropriate form:
+        stu_triples = [triple for sublist in self.stu_accumulated for triple in sublist]
+        
+        stu_triples_f = [triple for sublist in self.stu_accumulated_f for triple in sublist]
+        
+        # sort the stu values:
+        self.t_spheno = np.array([triple[0] for triple in stu_triples])
+        self.s_spheno = np.array([triple[1] for triple in stu_triples])
+        self.u_spheno = np.array([triple[2] for triple in stu_triples])
+        
+        self.t_prespheno = np.array([triple[3] for triple in stu_triples])
+        self.s_prespheno = np.array([triple[4] for triple in stu_triples])
+        self.u_prespheno = np.array([triple[5] for triple in stu_triples])
+        
+        self.t_prespheno_f = np.array([triple[0] for triple in stu_triples_f])
+        self.s_prespheno_f = np.array([triple[1] for triple in stu_triples_f])
+        self.u_prespheno_f = np.array([triple[2] for triple in stu_triples_f])
+        
+        self.num = len(stu_triples)
     
+    def create_analysis_results(self, Result_data):
+        # Call the desired plotting methods:
+        
+        # Create a new directory where the results of the analysis will be stored:
+        os.chdir(os.path.dirname(Result_data))
+        now = dt.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
+        analysis_dir_name  = 'analysis_results_{}'.format(now)
+        path = os.path.join('analysis_res', analysis_dir_name)
+        os.mkdir(path)
+        os.chdir(path)
+        
+        # Call the plotting methods:
+        """
+        self.br_plotter(self.v1_accumulated, self.v2_accumulated, self.BXsgammaRatio, self.BXsgammaUncertMinus,
+                        self.BXsgammaUncertPlus , self.BRB0eeRatio, self.BRB0eeUncertMinus, self.BRB0eeUncertPlus,
+                        self.BRKPLuspinunuRatio, self.BRKPLuspinunuUncertMinus, self.BRKPLuspinunuUncertPlus,
+                        self.BXB0mumuRatio, self.BXB0mumuUncertMinus, self.BXB0mumuUncertPlus, self.BRBsmumuRatio, 
+                        self.BRBsmumuUncertMinus, self.BRBsmumuUncertPlus, self.BRZtoemuRatio, self.ZtoEMuUncertMinus,
+                        self.ZtoEMuUncertPlus, self.BRZtoetauRatio, self.ZtoETauUncertMinus, self.ZtoETauUncertPlus,
+                        self.BRZtomutauRatio, self.ZtoMuTauUncertMinus, self.ZtoMuTauUncertPlus, self.EpsilonKRatio,
+                        self.EpsilonKUncertMinus, self.EpsilonKUncertPlus, self.DeltaMdRatio, self.DeltaMdUncertMinus, 
+                        self.DeltaMdUncertPlus, self.mH_accumulated, 
+                        self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated, self.mHPlus_accumulated,
+                        self.delta2_accumulated, self.delta3_accumulated)
+        """
+        if self.flavorObsDict["BtoXsGamma"]:
+            self.BtoSGamma_plotter(self.v1_accumulated, self.v2_accumulated, self.BXsgammaRatio, 
+                                   self.BXsgammaUncertMinus, self.BXsgammaUncertPlus, self.mHPlus_accumulated,
+                                   self.beta_accumulated, self.mH_accumulated, 
+                                   self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+        
+        if self.flavorObsDict["BstoMuMu"]:
+            self.BstoMuMu_plotter(self.v1_accumulated, self.v2_accumulated, self.BRBsmumuRatio, self.BRBsmumuUncertMinus,
+                                  self.BRBsmumuUncertPlus, self.mHPlus_accumulated, self.v1_accumulated_f,
+                                  self.v2_accumulated_f, self.BRBsmumuRatio_f, self.mHPlus_accumulated_f,
+                                  self.mH_accumulated, 
+                                  self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+        
+        """
+        if self.flavorObsDict["B0toee"]:
+            self.B0toee_plotter(self.v1_accumulated, self.v2_accumulated, self.delta2_accumulated,
+                                self.delta3_accumulated, self.BRB0eeRatio, self.BRB0eeUncertMinus,
+                                self.BRB0eeUncertPlus, self.mHPlus_accumulated)
+        """
+        if self.flavorObsDict["B0toMuMu"]:
+            self.B0toMuMu_plotter(self.v1_accumulated, self.v2_accumulated, self.delta2_accumulated, 
+                                  self.delta3_accumulated, self.BXB0mumuRatio, self.BXB0mumuUncertMinus,
+                                  self.BXB0mumuUncertPlus, self.mHPlus_accumulated, self.beta_accumulated,
+                                  self.mH_accumulated, 
+                                  self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+        
+        if self.flavorObsDict["K+toPiNuNu"]:
+            self.KPlustoPiNuNu_plotter(self.v1_accumulated, self.v2_accumulated, self.delta2_accumulated,
+                                       self.delta3_accumulated, self.BRKPLuspinunuRatio, self.BRKPLuspinunuUncertMinus,
+                                       self.BRKPLuspinunuUncertPlus, self.mHPlus_accumulated,
+                                       self.mH_accumulated, 
+                                       self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+            
+        if self.flavorObsDict["EpsilonK"]:
+            self.EpsilonK_plotter(self.v1_accumulated, self.v2_accumulated, self.delta2_accumulated,
+                                  self.delta3_accumulated, self.EpsilonKRatio, self.EpsilonKUncertMinus,
+                                  self.EpsilonKUncertPlus, self.mHPlus_accumulated,
+                                  self.mH_accumulated, 
+                                  self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+        
+        if self.flavorObsDict["DeltaMd"]:
+            self.DeltaMd_plotter(self.v1_accumulated, self.v2_accumulated, self.delta2_accumulated, 
+                                 self.delta3_accumulated, self.DeltaMdRatio, self.DeltaMdUncertMinus,
+                                 self.DeltaMdUncertPlus, self.mHPlus_accumulated,
+                                 self.mH_accumulated, 
+                                 self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+            
+        if self.flavorObsDict["DeltaMs"]:
+            self.DeltaMs_plotter(self.v1_accumulated, self.v2_accumulated, self.delta2_accumulated, 
+                                 self.delta3_accumulated, self.DeltaMsRatio, self.DeltaMsUncertMinus,
+                                 self.DeltaMsUncertPlus, self.mHPlus_accumulated,
+                                 self.mH_accumulated, 
+                                 self.mS_accumulated, self.mA_accumulated, self.mChi_accumulated)
+        
+        
+        self.stu_plotter(self.s_prespheno, self.t_prespheno, self.u_prespheno, self.beta_accumulated,
+                         self.mHPlus_accumulated, self.s_prespheno_f, self.t_prespheno_f, self.u_prespheno_f,
+                         self.beta_accumulated_f, self.mHPlus_accumulated_f)
+        
+        """
+        self.mass_plotter(self.s_prespheno, self.t_prespheno, self.u_prespheno, self.beta_accumulated, 
+                          self.delta2_accumulated, self.delta3_accumulated, self.v1_accumulated,
+                          self.v2_accumulated, self.mH_accumulated, self.mS_accumulated, self.mA_accumulated,
+                          self.mChi_accumulated, self.mHPlus_accumulated)
+        """
+        
+        if self.plotSphenoDifferences:
+            self.stu_differences_plotter(self.num, self.t_spheno, self.s_spheno, self.u_spheno,
+                                         self.t_prespheno, self.s_prespheno, self.u_prespheno)
+        
+        if self.plotSPhenoFailPoints:
+            self.flag_plotter(self.flags, self.lambdas)
     
     def create_data_file(self, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p):
         """Saves the collected statistics."""
@@ -386,9 +668,46 @@ class Analysis_And_Plotting(visualization.Visualization):
             {3} # counter: points that passed HiggsSignals
             {4} # counter: good points (passed everything)
             """.format(c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p))
+            
+    def toCSV(self, Result_data):
+        """Creates a pandas dataFrame to save as a csv file"""
+        import pandas as pd
+        
+        #self.hbs_accumulated = []
+        
+        #self.key_list = []
+        
+        self.df = pd.DataFrame({"mH" : self.mH_accumulated, "mS" : self.mS_accumulated, "mA" : self.mA_accumulated,
+                           "mChi" : self.mChi_accumulated, "mHPlus" : self.mHPlus_accumulated,
+                           "S" : self.s_spheno, "T" : self.t_spheno, "U" : self.u_spheno, 
+                           "S_p" : self.s_prespheno, "T_p" : self.t_prespheno, "U_p" : self.u_prespheno,
+                           "v1": self.v1_accumulated, "v2" : self.v2_accumulated,
+                           "beta" : self.beta_accumulated, "delta2" : self.delta2_accumulated,
+                           "delta3" : self.delta3_accumulated, "BXsgammaRatio" : self.BXsgammaRatio,
+                           "BRB0eeRatio" : self.BRB0eeRatio, "BRKPLuspinunuRatio" : self.BRKPLuspinunuRatio,
+                           "BXB0mumuRatio" : self.BXB0mumuRatio, "BRBsmumuRatio" : self.BRBsmumuRatio,
+                           "EpsilonKRatio" : self.EpsilonKRatio,
+                           "DeltaMdRatio" : self.DeltaMdRatio, "DeltaMsRatio" : self.DeltaMsRatio})
+        
+        self.df_f = pd.DataFrame({"mH" : self.mH_accumulated_f, "mS" : self.mS_accumulated_f,
+                             "mA" : self.mA_accumulated_f, "mChi" : self.mChi_accumulated_f,
+                             "mHPlus" : self.mHPlus_accumulated_f, "S" : self.s_prespheno_f,
+                             "T" : self.t_prespheno_f, "U" : self.u_prespheno_f,
+                             "v1": self.v1_accumulated_f,
+                             "v2" : self.v2_accumulated_f, "beta" : self.beta_accumulated_f,
+                             "delta2" : self.delta2_accumulated_f, "delta3" : self.delta3_accumulated_f,
+                             })
+        
+        filename_df = os.path.join(Result_data, "total_data_good_points.csv")
+        filename_df_f = os.path.join(Result_data, "total_data_mixed_points.csv")
+        
+        fw.save_dataFrames_data(filename_df, self.df)
+        fw.save_dataFrames_data(filename_df_f, self.df_f)
 
 
 #---------------------------------------------------------------------------------------------
+# Time the analysis:
+start = time.time()
 
 # Set up the paths:
 working_dir = os.getcwd()
@@ -400,47 +719,20 @@ os.chdir(Result_data)
 
 # This list contains the names (based on timestap of run initiation) of the folders containing the data from the runs
 # (one run - one timestap-like name):
-#list_of_runs_to_harvest = [os.path.join(Result_data, '2021_06_04_04_00_45')]
+#list_of_runs_to_harvest = [os.path.join(Result_data, '2021_07_27_17_50_16_426716')]
 list_of_runs_to_harvest = [f.path for f in os.scandir(Result_data) if f.is_dir()]
 
 #---------------------------------------------------------------------------------------------
 
 inst = Analysis_And_Plotting()
 
-# read the data
-stu_triples, betas, c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p, delta2_accumulated, delta3_accumulated, v1_accumulated,\
-v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,\
-mHPlus_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio,\
-BXB0mumu_Ratio = inst.data_harvester(list_of_runs_to_harvest, Result_data)
+inst.data_harvester(list_of_runs_to_harvest, Result_data, working_dir)
+inst.toCSV(Result_data)
 
-# sort the stu values:
-t_spheno = np.array([triple[0] for triple in stu_triples])
-s_spheno = np.array([triple[1] for triple in stu_triples])
-u_spheno = np.array([triple[2] for triple in stu_triples])
+#inst.create_analysis_results(Result_data)
 
-t_prespheno = np.array([triple[3] for triple in stu_triples])
-s_prespheno = np.array([triple[4] for triple in stu_triples])
-u_prespheno = np.array([triple[5] for triple in stu_triples])
-
-num = len(stu_triples)
-#print(betas)
-
-#---------------------------------------------------------------------------------------------
-# change to a new directory where the results of the analysis will be saved
-os.chdir(os.path.dirname(Result_data))
-now = dt.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
-analysis_dir_name  = 'analysis_results_{}'.format(now)
-os.mkdir(analysis_dir_name)
-os.chdir(analysis_dir_name)
+stop = time.time()
+print("Elapsed time: ", stop - start, " s, ", (stop - start)/60, " min." )
 
 # save the analysis statistics
-inst.create_data_file(c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p)
-
-# create the plots
-inst.br_plotter(v1_accumulated, v2_accumulated, brB_to_Xsgamma, BRB0eeNP_Ratio, BRKPLuspinunu_Ratio, BXB0mumu_Ratio,
-                mH_accumulated, mS_accumulated, delta2_accumulated, delta3_accumulated)
-inst.stu_plotter(s_prespheno, t_prespheno, u_prespheno, betas)
-inst.mass_plotter(s_prespheno, t_prespheno, u_prespheno, betas, delta2_accumulated, delta3_accumulated, v1_accumulated,
-                v2_accumulated, mH_accumulated, mS_accumulated, mA_accumulated, mChi_accumulated,
-                mHPlus_accumulated)
-inst.stu_differences_plotter(num, t_spheno, s_spheno, u_spheno, t_prespheno, s_prespheno, u_prespheno)
+#inst.create_data_file(c_t_p_p, c_p_g_s, c_p_p_hb, c_p_p_hs, c_g_p)
