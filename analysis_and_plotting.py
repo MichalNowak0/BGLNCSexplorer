@@ -36,6 +36,9 @@ class Analysis_And_Plotting(visualization.Visualization):
         # Lists for tranferring data between data files and the plotting methods:
             
         self.stu_accumulated = []
+        self.fCouplings = []
+        self.bCouplings = []
+        self.unitarityCheck = []
         self.beta_accumulated = []
         self.delta2_accumulated = []
         self.delta3_accumulated = []
@@ -398,7 +401,8 @@ class Analysis_And_Plotting(visualization.Visualization):
             data = []
             data_f = []
             
-            stu_from_SPheno, c_p_g_s_tmp, point_numbers = fw.read_data_SPheno(path_to_spectrum_data,
+            stu_from_SPheno, fCouplings, bCouplings, unitarity, c_p_g_s_tmp, point_numbers = fw.read_data_SPheno(
+                                                                                path_to_spectrum_data,
                                                                                 passed_HBS_numbers)
             self.c_p_g_s += c_p_g_s_tmp
             
@@ -419,6 +423,9 @@ class Analysis_And_Plotting(visualization.Visualization):
                 data.append(stu_from_SPheno[i] + [data_from_preSPheno[i][0],
                                                   data_from_preSPheno[i][1],
                                                   data_from_preSPheno[i][2]])
+                self.fCouplings.append(fCouplings)
+                self.bCouplings.append(bCouplings)
+                self.unitarityCheck.append(unitarity)
                 self.beta_accumulated.append(data_from_preSPheno[i][6])
                 self.hbs_accumulated.append(hbs_data[i])
                 self.delta2_accumulated.append(data_from_preSPheno[i][10])
@@ -677,6 +684,11 @@ class Analysis_And_Plotting(visualization.Visualization):
         
         #self.key_list = []
         
+        tmp_df1 = pd.DataFrame(self.fCouplings, columns = ['h1_t,', 'h2_t', 'h3_t'])
+        tmp_df2 = pd.DataFrame(self.bCouplings, columns = ['ww_1', 'zz_1', 'zg_1', 'gg_1', 'gluglu_1', 'zgluglu_1',
+                                                           'ww_2', 'zz_2', 'zg_2', 'gg_2', 'gluglu_2', 'zgluglu_2',
+                                                           'ww_3', 'zz_3', 'zg_3', 'gg_3', 'gluglu_3', 'zgluglu_3'])
+        
         self.df = pd.DataFrame({"mH" : self.mH_accumulated, "mS" : self.mS_accumulated, "mA" : self.mA_accumulated,
                            "mChi" : self.mChi_accumulated, "mHPlus" : self.mHPlus_accumulated,
                            "S" : self.s_spheno, "T" : self.t_spheno, "U" : self.u_spheno, 
@@ -687,7 +699,10 @@ class Analysis_And_Plotting(visualization.Visualization):
                            "BRB0eeRatio" : self.BRB0eeRatio, "BRKPLuspinunuRatio" : self.BRKPLuspinunuRatio,
                            "BXB0mumuRatio" : self.BXB0mumuRatio, "BRBsmumuRatio" : self.BRBsmumuRatio,
                            "EpsilonKRatio" : self.EpsilonKRatio,
-                           "DeltaMdRatio" : self.DeltaMdRatio, "DeltaMsRatio" : self.DeltaMsRatio})
+                           "DeltaMdRatio" : self.DeltaMdRatio, "DeltaMsRatio" : self.DeltaMsRatio,
+                           "UnitaritySPheno" : self.unitarityCheck})
+        
+        self.df = pd.concat([self.df, tmp_df1, tmp_df2], axis = 1)
         
         self.df_f = pd.DataFrame({"mH" : self.mH_accumulated_f, "mS" : self.mS_accumulated_f,
                              "mA" : self.mA_accumulated_f, "mChi" : self.mChi_accumulated_f,

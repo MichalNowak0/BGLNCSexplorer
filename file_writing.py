@@ -1533,43 +1533,128 @@ def read_data_preSPheno(path, point_numbers, passed_HBS_numbers, failed_pt_count
     return data, data_failed_points, flag_data, lambda_data, c_t_p_p, failed_pt_nums, failed_pt_counter_tmp
 
 def read_data_SPheno(path, passed_HBS_numbers = [- 1]):
-    #Reads the STU parameters from the file containing the harvested SPheno data
+    # Read the STU parameters from the file containing the harvested SPheno data
+    # New: read in also relevant couplings and branching ratios.
+    
+    # Temporarily stores data as strings before it is stripped and converted to values:
     a = []
-    data = []
+    
     point_numbers = []
     point_number = -1
     c_p_g_s = 0
+    
+    # Saves data:
+    data_stu = []
+    data_fCouplings = []
+    data_bCouplings = []
+    data_unitarity = []
+    
     # If we have reached the block contanining the Electroweak Precision Observables:
-    EW_P_O_info = False    
+    EW_P_O_info = False
+    Couplings_fermions = False
+    Couplings_bosons = False
+    Unitarity = False
+    
     with open(path, 'r') as f:
         
         for line in f.readlines():
             
+            # Switch between points:
             if line.startswith('>>point'):
                 point_numbers.append(int(line.strip('\n').split('t')[1]))
                 point_number = int(line.strip('\n').split('t')[1])
                 c_p_g_s += 1
-                
+             
+            # Which block are we in:
             if line.startswith('Block SPhenoLowEnergy'):
             #Electroweak precision observables
                 EW_P_O_info = True
                 
+            if line.startswith('Block HiggsCouplingsFermions'):
+            #
+                Couplings_fermions = True
+                
+            if line.startswith('Block HiggsCouplingsBosons'):
+            #    
+                Couplings_bosons = True
+                
+                if Couplings_fermions:
+                    Couplings_fermions = False
+                
+                    if len(a) != 0 and point_number in passed_HBS_numbers:
+                        t_1 = float(a[3].split()[0])
+                        t_2 = float(a[9].split()[0])
+                        t_3 = float(a[15].split()[0])
+                        data_fCouplings.append([t_1, t_2, t_3])
+                        a = []
+                        
+            if line.startswith('Block EFFHIGGSCOUPLINGS'):
+            #
+                
+                if Couplings_bosons:
+                    Couplings_bosons = False
+                
+                    if len(a) != 0 and point_number in passed_HBS_numbers:
+                        
+                        ww_1 = float(a[1].split()[0])
+                        zz_1 = float(a[2].split()[0])
+                        zg_1 = float(a[3].split()[0])
+                        gg_1 = float(a[4].split()[0])
+                        gluglu_1 = float(a[5].split()[0])
+                        zgluglu_1 = float(a[6].split()[0])
+                        
+                        ww_2 = float(a[7].split()[0])
+                        zz_2 = float(a[8].split()[0])
+                        zg_2 = float(a[9].split()[0])
+                        gg_2 = float(a[10].split()[0])
+                        gluglu_2 = float(a[11].split()[0])
+                        zgluglu_2 = float(a[12].split()[0])
+                        
+                        ww_3 = float(a[13].split()[0])
+                        zz_3 = float(a[14].split()[0])
+                        zg_3 = float(a[15].split()[0])
+                        gg_3 = float(a[16].split()[0])
+                        gluglu_3 = float(a[17].split()[0])
+                        zgluglu_3 = float(a[18].split()[0])
+                        
+                        data_bCouplings.append([ww_1, zz_1, zg_1, gg_1, gluglu_1, zgluglu_1, ww_2, zz_2, zg_2,
+                                                gg_2, gluglu_2, zgluglu_2, ww_3, zz_3, zg_3, gg_3, gluglu_3, zgluglu_3])
+                        a = []
+            
+            # Once we exit a block, harvest data and switch off data-taking:
             if line.startswith('Block FlavorKitQFV # quark flavor violating observables'):
-                EW_P_O_info=False
+                EW_P_O_info = False
                 
                 if len(a) != 0 and point_number in passed_HBS_numbers:
                     T = float(a[1].split()[1] )
                     S = float(a[2].split()[1] )
                     U = float(a[3].split()[1] )
-                    data.append([T, S, U])
+                    data_stu.append([T, S, U])
                     a = []
                     
-            if EW_P_O_info:
+            if line.startswith('Block TREELEVELUNITARITY'):
+                Unitarity = True
+                
+            if line.startswith('Block TREELEVELUNITARITYwTRILINEARS'):
+                Unitarity = False
+                
+                if len(a) != 0 and point_number in passed_HBS_numbers:
+                    tmp = float(a[1].split()[1])
+                    a = []
+                    
+                    if tmp == 1.0:
+                        data_unitarity.append(1)
+                    
+                    else:
+                        data_unitarity.append(0)
+             
+            # If we are in the right blocks, harvest data:
+            if EW_P_O_info or Couplings_fermions or Couplings_bosons or Unitarity:
                 a.append(line.strip('\n'))
                 
     #a = line.strip('\n')
     
-    return data, c_p_g_s, point_numbers
+    return data_stu, data_fCouplings, data_bCouplings, data_unitarity, c_p_g_s, point_numbers
 
 def read_one_WC_block(path, n):
     right_block = False

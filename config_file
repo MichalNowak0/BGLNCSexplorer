@@ -20,8 +20,8 @@ Block Angles and Vev:s	# WARNING: all angle values get multiplied by pi!
 3 0 2.0			# a1 angle
 4 0 2.0			# gamma_1 angle
 Block Off-alignment Parameters
-1 -0.2 0.2		# delta_2
-2 -0.2 0.2		# delta_3
+1 -0.0 0.0		# delta_2
+2 -0.0 0.0		# delta_3
 Block PGS input		# data from the Particle Data Group
 1 -0.09 0.15		# bounds on T
 2 -0.11 0.09		# bounds on S
